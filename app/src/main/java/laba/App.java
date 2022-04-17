@@ -4,9 +4,14 @@ import dao.LabWorkDAO;
 import files.DataFileManager;
 import files.ExecuteFileManager;
 import io.ConsoleManager;
+import models.LabWork;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -44,35 +49,73 @@ public class App {
 
     public static void main(String[] args) {
 
+//
+//        try {
+//            String dataFileName = System.getenv("LABWORKS_FILE_PATH");
+//            String tempFileName = String.format("%s/lab_works_temp.json", System.getenv("TEMP"));
+//            boolean isMainFile = true;
+//
+//            File file = new File(dataFileName);
+//            if (!file.canRead()){
+//                if (!file.createNewFile()){
+//                    isMainFile = false;
+//                } else {
+//                    file.delete();
+//                }
+//            }
+//            if (dataFileName.trim().isEmpty() || tempFileName.trim().isEmpty()){
+//                consoleManager.error("Ошибка настройки переменного окружения! Программа завершает работу...");
+//                App.exit();
+//            }
+//            run(scanner, dataFileName, tempFileName, consoleManager, labWorkDAO, isMainFile);
+//
+//        } catch (IOException | NullPointerException e){
+//            consoleManager.error("Ошбика при работе с файлами");
+//        }
+
         ConsoleManager consoleManager = new ConsoleManager();
-        LabWorkDAO labWorkDAO = new LabWorkDAO();
         Scanner scanner = new Scanner(System.in);
+        DatagramSocket datagramSocket;
+        DatagramPacket datagramPacket;
+        InetAddress host;
+        int port;
 
+        while (true){
+            try{
+                String str = scanner.nextLine();
+                byte[] arr = str.getBytes(StandardCharsets.UTF_8);
+                int len = arr.length;
+                datagramSocket = new DatagramSocket();
+                host = InetAddress.getLocalHost();
+                port = 6789;
+                datagramPacket = new DatagramPacket(arr, len, host, port);
+                datagramSocket.setSoTimeout(5000);
 
-
-        try {
-            String dataFileName = System.getenv("LABWORKS_FILE_PATH");
-            String tempFileName = String.format("%s/lab_works_temp.json", System.getenv("TEMP"));
-            boolean isMainFile = true;
-
-            File file = new File(dataFileName);
-            if (!file.canRead()){
-                if (!file.createNewFile()){
-                    isMainFile = false;
-                } else {
-                    file.delete();
+                try{
+                    datagramSocket.send(datagramPacket);
                 }
-            }
-            if (dataFileName.trim().isEmpty() || tempFileName.trim().isEmpty()){
-                consoleManager.error("Ошибка настройки переменного окружения! Программа завершает работу...");
-                App.exit();
-            }
-            run(scanner, dataFileName, tempFileName, consoleManager, labWorkDAO, isMainFile);
+                catch (IOException e) {
+                    consoleManager.error("Ошибка во время отправке данных");
+                    break;
+                }
 
-        } catch (IOException | NullPointerException e){
-            consoleManager.error("Ошбика при работе с файлами");
+//                try {
+//                    datagramPacket = new DatagramPacket(arr, len);
+//                    datagramSocket.receive(datagramPacket);
+//                } catch (IOException e) {
+//                    consoleManager.error("Не удалось установить соединение с сервером");
+//                    break;
+//                }
+
+
+            } catch (SocketException e) {
+                consoleManager.error("Ошибка при создания сокета");
+                break;
+            } catch (UnknownHostException e) {
+                consoleManager.error("Ошбика подключения к хосту");
+                break;
+            }
         }
-
 
 
     }
