@@ -8,6 +8,7 @@
  */
 
 rootProject.name = 'Laba 06'
-include('app')
+include 'app'
 include 'server'
+include 'common'
 
