@@ -43,7 +43,6 @@ public class CommandFields {
         return command;
     }
 
-
     public CommandsManager getCommandsManager() {
         return commandsManager;
     }

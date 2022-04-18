@@ -138,18 +138,18 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
                 if (maxId < entry.getValue().getId()) {
                     maxId = entry.getValue().getId();
                 }
-                String key = labWorkChecker.checkUserKey(entry.getKey(), labWorkDAO, consoleManager, true, false);
-                Integer id = labWorkChecker.checkId(entry.getValue().getId().toString(), consoleManager, false);
-                ZonedDateTime dateTime = labWorkChecker.checkDate(entry.getValue().getCreationDate().toString(), consoleManager, false);
-                String name = labWorkChecker.checkNamePerson(entry.getValue().getName(), consoleManager, false);
-                Long coordX = labWorkChecker.checkX(entry.getValue().getCoordinates().getX().toString(), consoleManager, false);
-                Integer coordY = labWorkChecker.checkY(entry.getValue().getCoordinates().getY().toString(), consoleManager, false);
-                Float minimalPoint = labWorkChecker.checkMinimalPoint(entry.getValue().getMinimalPoint().toString(), consoleManager, false);
-                String description = labWorkChecker.checkDescription(entry.getValue().getDescription(), consoleManager, false);
-                Difficulty difficulty = labWorkChecker.checkDifficulty(entry.getValue().getDifficulty().toString(), consoleManager, false);
-                String authorName = labWorkChecker.checkNamePerson(entry.getValue().getAuthor().getName(), consoleManager, false);
-                Long authorWeight = labWorkChecker.checkWeightPerson(entry.getValue().getAuthor().getWeight().toString(), consoleManager, false);
-                String authorPassportId = labWorkChecker.checkPassportIdPerson(entry.getValue().getAuthor().getPassportID(), consoleManager, false);
+                String key = labWorkChecker.checkUserKey(entry.getKey(), true, false);
+                Integer id = labWorkChecker.checkId(entry.getValue().getId().toString(), false);
+                ZonedDateTime dateTime = labWorkChecker.checkDate(entry.getValue().getCreationDate().toString(), false);
+                String name = labWorkChecker.checkNamePerson(entry.getValue().getName(), false);
+                Long coordX = labWorkChecker.checkX(entry.getValue().getCoordinates().getX().toString(), false);
+                Integer coordY = labWorkChecker.checkY(entry.getValue().getCoordinates().getY().toString(), false);
+                Float minimalPoint = labWorkChecker.checkMinimalPoint(entry.getValue().getMinimalPoint().toString(), false);
+                String description = labWorkChecker.checkDescription(entry.getValue().getDescription(), false);
+                Difficulty difficulty = labWorkChecker.checkDifficulty(entry.getValue().getDifficulty().toString(), false);
+                String authorName = labWorkChecker.checkNamePerson(entry.getValue().getAuthor().getName(), false);
+                Long authorWeight = labWorkChecker.checkWeightPerson(entry.getValue().getAuthor().getWeight().toString(), false);
+                String authorPassportId = labWorkChecker.checkPassportIdPerson(entry.getValue().getAuthor().getPassportID(), false);
 
 
                 if (isCreateFile) {
@@ -161,7 +161,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
                         id = null;
                     }
                     while (id == null) {
-                        id = labWorkChecker.checkId(GenerationID.newId().toString(), consoleManager, false);
+                        id = labWorkChecker.checkId(GenerationID.newId().toString(), false);
                         if (listId.contains(id)) {
                             id = null;
                         }

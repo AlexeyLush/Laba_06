@@ -42,7 +42,7 @@ public class InsertCommand extends CommandAbstract {
             labWork.setCreationDate(ZonedDateTime.now());
         }
 
-        while (checker.checkUserKey(key, commandFields.getConsoleManager(), true, true) == null) {
+        while (checker.checkUserKey(key, true, true) == null) {
             commandFields.getConsoleManager().output("Введите ключ: ");
             key = commandFields.getScanner().nextLine();
         }

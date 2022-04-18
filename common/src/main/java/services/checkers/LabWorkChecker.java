@@ -11,34 +11,16 @@ import java.util.NoSuchElementException;
 
 public class LabWorkChecker extends Checker {
 
-    public String checkerKey(String key, LabWorkDAO labWorkDAO, ConsoleManager consoleManager, boolean withError) {
-        String returnKey = null;
-        try {
-            if (labWorkDAO.getAll().containsKey(key)) {
-                return null;
-            }
-            returnKey = key;
-        } catch (NoSuchElementException noSuchElementException) {
-            return null;
-        }
-        return returnKey;
-    }
-    public String checkUserKey(String key, LabWorkDAO labWorkDAO, ConsoleManager consoleManager, boolean isUnique, boolean withError) {
-        String returnKey = null;
+    public String checkUserKey(String key, boolean isUnique, boolean withError) {
         if (key == null) {
             return null;
         } else if (key.isEmpty() || key.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || key.contains(" ") || key.contains("\t")) {
             return null;
         } else {
-            if (isUnique){
-                returnKey = checkerKey(key, labWorkDAO, consoleManager, withError);
-            } else {
-                returnKey = key;
-            }
+            return key;
         }
-        return returnKey;
     }
-    public Integer checkId(String id, ConsoleManager consoleManager, boolean withError){
+    public Integer checkId(String id, boolean withError){
         Integer returnId = null;
 
         try{
@@ -55,7 +37,7 @@ public class LabWorkChecker extends Checker {
         return returnId;
 
     }
-    public ZonedDateTime checkDate(String date, ConsoleManager consoleManager, boolean withError){
+    public ZonedDateTime checkDate(String date, boolean withError){
         ZonedDateTime returnDate;
         try {
             returnDate = ZonedDateTime.parse(date);
@@ -64,7 +46,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnDate;
     }
-    public String checkUserNameLab(String name, ConsoleManager consoleManager, boolean withError){
+    public String checkUserNameLab(String name, boolean withError){
 
         String returnName = null;
         returnName = name;
@@ -73,7 +55,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnName;
     }
-    public Long checkX(String x, ConsoleManager consoleManager, boolean withError){
+    public Long checkX(String x, boolean withError){
         Long returnX = null;
         Coordinates tempCoordinates = new Coordinates();
         try {
@@ -86,7 +68,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnX;
     }
-    public Integer checkY(String y, ConsoleManager consoleManager, boolean withError){
+    public Integer checkY(String y, boolean withError){
         Integer returnY = null;
         try {
             returnY = Integer.parseInt(y);
@@ -95,7 +77,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnY;
     }
-    public Float checkMinimalPoint(String minimalPoint, ConsoleManager consoleManager, boolean withError){
+    public Float checkMinimalPoint(String minimalPoint, boolean withError){
         Float returnMinimalPoint = null;
         try {
             if (minimalPoint == null){
@@ -110,7 +92,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnMinimalPoint;
     }
-    public String checkDescription(String description, ConsoleManager consoleManager, boolean withError){
+    public String checkDescription(String description, boolean withError){
         String returnDescription;
 
             returnDescription = description;
@@ -120,7 +102,7 @@ public class LabWorkChecker extends Checker {
 
         return returnDescription;
     }
-    public Difficulty checkDifficulty(String difficultyString, ConsoleManager consoleManager, boolean withError){
+    public Difficulty checkDifficulty(String difficultyString, boolean withError){
         Difficulty difficulty = Difficulty.isDifficulty(difficultyString);
 
         if (difficulty == null){
@@ -129,7 +111,7 @@ public class LabWorkChecker extends Checker {
 
         return difficulty;
     }
-    public String checkNamePerson(String name, ConsoleManager consoleManager, boolean withError){
+    public String checkNamePerson(String name, boolean withError){
         String returnName;
             returnName = name;
             if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
@@ -137,7 +119,7 @@ public class LabWorkChecker extends Checker {
             }
         return returnName;
     }
-    public Long checkWeightPerson(String weight, ConsoleManager consoleManager, boolean withError){
+    public Long checkWeightPerson(String weight, boolean withError){
 
         Long returnWeight = null;
         try{
@@ -153,7 +135,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnWeight;
     }
-    public String checkPassportIdPerson(String passport, ConsoleManager consoleManager, boolean withError){
+    public String checkPassportIdPerson(String passport, boolean withError){
         String returnPassportId = null;
         returnPassportId = passport;
         if (returnPassportId == null || returnPassportId.isEmpty() || returnPassportId.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
