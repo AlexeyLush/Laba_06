@@ -42,7 +42,7 @@ public class InsertCommand extends CommandAbstract {
             labWork.setCreationDate(ZonedDateTime.now());
         }
 
-        while (checker.checkUserKey(key, commandFields.getLabWorkDAO(), commandFields.getConsoleManager(), true, true) == null) {
+        while (checker.checkUserKey(key, commandFields.getConsoleManager(), true, true) == null) {
             commandFields.getConsoleManager().output("Введите ключ: ");
             key = commandFields.getScanner().nextLine();
         }
@@ -53,8 +53,6 @@ public class InsertCommand extends CommandAbstract {
             labWork = labWorkProcess.getProcessedElement(labWork, checker);
         }
 
-
-        commandFields.getLabWorkDAO().create(key, labWork);
         commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
 
     }

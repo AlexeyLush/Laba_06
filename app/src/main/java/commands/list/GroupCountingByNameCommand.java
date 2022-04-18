@@ -20,24 +20,24 @@ public class GroupCountingByNameCommand extends CommandAbstract {
 
     @Override
     public void execute(CommandFields commandFields) {
-        Map<Character, Integer> groupByName = new LinkedHashMap<>();
-        try{
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                Character firstChar = entry.getValue().getName().toCharArray()[0];
-                if (!groupByName.containsKey(firstChar)){
-                    groupByName.put(firstChar, 0);
-                }
-                groupByName.put(firstChar, groupByName.get(firstChar) + 1);
-
-            }
-
-            for (Map.Entry<Character, Integer> entry : groupByName.entrySet()) {
-                commandFields.getConsoleManager().outputln(String.format("Кол-во названий, начинающихся с '%c': %d",entry.getKey(), entry.getValue()));
-            }
-
-            commandFields.getConsoleManager().successfully("Команда group_counting_by_name успешно выполнена");
-        } catch (NullPointerException nullPointerException){
-            commandFields.getConsoleManager().error("Ошибка!");
-        }
+//        Map<Character, Integer> groupByName = new LinkedHashMap<>();
+//        try{
+//            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+//                Character firstChar = entry.getValue().getName().toCharArray()[0];
+//                if (!groupByName.containsKey(firstChar)){
+//                    groupByName.put(firstChar, 0);
+//                }
+//                groupByName.put(firstChar, groupByName.get(firstChar) + 1);
+//
+//            }
+//
+//            for (Map.Entry<Character, Integer> entry : groupByName.entrySet()) {
+//                commandFields.getConsoleManager().outputln(String.format("Кол-во названий, начинающихся с '%c': %d",entry.getKey(), entry.getValue()));
+//            }
+//
+//            commandFields.getConsoleManager().successfully("Команда group_counting_by_name успешно выполнена");
+//        } catch (NullPointerException nullPointerException){
+//            commandFields.getConsoleManager().error("Ошибка!");
+//        }
     }
 }

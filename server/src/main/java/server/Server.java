@@ -3,6 +3,7 @@ package server;
 import dao.LabWorkDAO;
 import files.DataFileManager;
 import io.ConsoleManager;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,7 +28,6 @@ public class Server {
     public static void exit() {
         isRun = false;
     }
-
     public static void getDataFromFile(String dataFileName, String tempFileName, ConsoleManager consoleManager, Scanner scanner, LabWorkDAO labWorkDAO) {
         DataFileManager dataFileManager = new DataFileManager(dataFileName, tempFileName, consoleManager, scanner);
         String fileName = dataFileName;
@@ -36,14 +36,34 @@ public class Server {
         }
         labWorkDAO.initialMap(dataFileManager.readMap(fileName,true, true));
     }
+    public static void run(ConsoleManager consoleManager, int port ){
+        try {
+            consoleManager.successfully("Серевер запущен!");
+            SocketAddress address = new InetSocketAddress(port);
+            DatagramChannel datagramChannel = DatagramChannel.open();
+            datagramChannel.bind(address);
+            while (isRun) {
+                byte[] arr = new byte[64];
+                ByteBuffer buffer;
+                buffer = ByteBuffer.wrap(arr);
+                address = datagramChannel.receive(buffer);
+                byte[] arr2 = buffer.array();
 
+                System.out.println(new String(arr2, StandardCharsets.UTF_8));
+                buffer.flip();
+//                consoleManager.warning("Отправка данных");
+//                datagramChannel.send(buffer, address);
+//                consoleManager.successfully("Данные отправлены");
+            }
+
+        } catch (IOException e) {
+            consoleManager.error("Ошибка во время открытия канала");
+        }
+    }
     public static void main(String[] args) {
 
         ConsoleManager consoleManager = new ConsoleManager(true);
         Scanner scanner = new Scanner(System.in);
-
-        LabWorkDAO labWorkDAO = new LabWorkDAO();
-        int port = 6789;
 
         String dataFileName = System.getenv("LABWORKS_FILE_PATH");
         String tempFileName = String.format("%s/lab_works_temp.json", System.getenv("TEMP"));
@@ -55,33 +75,11 @@ public class Server {
 
         if (isRun) {
 
+            LabWorkDAO labWorkDAO = new LabWorkDAO();
+            int port = 6790;
+
             getDataFromFile(dataFileName, tempFileName, consoleManager, scanner, labWorkDAO);
-            SocketAddress address;
-            DatagramChannel datagramChannel;
-            byte[] arr = new byte[64];
-            ByteBuffer buffer;
-            try {
-
-                consoleManager.successfully("Серевер запущен!");
-                address = new InetSocketAddress(port);
-                datagramChannel = DatagramChannel.open();
-                datagramChannel.bind(address);
-                while (isRun) {
-
-                    buffer = ByteBuffer.wrap(arr);
-                    address = datagramChannel.receive(buffer);
-                    byte[] arr2 = buffer.array();
-
-                    System.out.println(new String(arr2, StandardCharsets.UTF_8));
-                    buffer.flip();
-//                consoleManager.warning("Отправка данных");
-//                datagramChannel.send(buffer, address);
-//                consoleManager.successfully("Данные отправлены");
-                }
-
-            } catch (IOException e) {
-                consoleManager.error("Ошибка во время открытия канала");
-            }
+            run(consoleManager, port);
         }
 
 

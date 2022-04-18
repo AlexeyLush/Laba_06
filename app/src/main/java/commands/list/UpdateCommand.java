@@ -139,59 +139,59 @@ public class UpdateCommand extends CommandAbstract {
     @Override
     public void execute(CommandFields commandFields) {
 
-        LabWorkChecker checker = new LabWorkChecker();
-        LabWork labWork = null;
-
-        String[] splitCommand = new SplitCommandOnIdAndJSON().splitedCommand(commandFields.getCommand(), commandFields.getConsoleManager());
-
-        try {
-            String id = splitCommand[0];
-            String json = splitCommand[1];
-
-            Integer idInt = checker.checkId(id, commandFields.getConsoleManager(), true);
-            while (labWork == null){
-
-                while (idInt == null){
-                    commandFields.getConsoleManager().output("Введите id: ");
-                    idInt = checker.checkId(commandFields.getScanner().nextLine(), commandFields.getConsoleManager(), true);
-                }
-                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                    if (entry.getValue().getId().equals(idInt)) {
-                        labWork = entry.getValue();
-                    }
-                }
-
-                if (labWork == null) {
-                    idInt = null;
-                    commandFields.getConsoleManager().error("Элемент с таким id не найден");
-                }
-            }
-
-
-            if (json != null) {
-
-                LabWork labWorkTemp = new ParserJSON(commandFields.getConsoleManager()).deserializeElement(json);
-                LabWorkProcess labWorkJsonProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
-                LabWork labWorkProcessed = labWorkJsonProcess.getProcessedElementWithError(labWorkTemp, checker);
-                commandFields.getLabWorkDAO().update(idInt, labWorkProcessed);
-                commandFields.getConsoleManager().successfully("Команда update успешно выполнена");
-
-            }
-            else {
-                showLabWorkFields(labWork, commandFields.getConsoleManager());
-                commandFields.getConsoleManager().output("Выберете пункт, который хотите изменить или введите 0, чтобы завершить обновление: ");
-                while (choosePunct(commandFields.getScanner().nextLine(), commandFields.getConsoleManager(), checker, commandFields.getScanner(), labWork)) {
-                    showLabWorkFields(labWork, commandFields.getConsoleManager());
-                    commandFields.getConsoleManager().output("Выберете пункт, который хотите изменить или введите 0, чтобы завершить обновление: ");
-                }
-            }
-
-
-        } catch (NullPointerException nullPointerException) {
-            commandFields.getConsoleManager().error("Вы не ввели значение");
-        } catch (NumberFormatException numberFormatException) {
-            commandFields.getConsoleManager().error("Введите число");
-        }
+//        LabWorkChecker checker = new LabWorkChecker();
+//        LabWork labWork = null;
+//
+//        String[] splitCommand = new SplitCommandOnIdAndJSON().splitedCommand(commandFields.getCommand(), commandFields.getConsoleManager());
+//
+//        try {
+//            String id = splitCommand[0];
+//            String json = splitCommand[1];
+//
+//            Integer idInt = checker.checkId(id, commandFields.getConsoleManager(), true);
+//            while (labWork == null){
+//
+//                while (idInt == null){
+//                    commandFields.getConsoleManager().output("Введите id: ");
+//                    idInt = checker.checkId(commandFields.getScanner().nextLine(), commandFields.getConsoleManager(), true);
+//                }
+//                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+//                    if (entry.getValue().getId().equals(idInt)) {
+//                        labWork = entry.getValue();
+//                    }
+//                }
+//
+//                if (labWork == null) {
+//                    idInt = null;
+//                    commandFields.getConsoleManager().error("Элемент с таким id не найден");
+//                }
+//            }
+//
+//
+//            if (json != null) {
+//
+//                LabWork labWorkTemp = new ParserJSON(commandFields.getConsoleManager()).deserializeElement(json);
+//                LabWorkProcess labWorkJsonProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
+//                LabWork labWorkProcessed = labWorkJsonProcess.getProcessedElementWithError(labWorkTemp, checker);
+//                commandFields.getLabWorkDAO().update(idInt, labWorkProcessed);
+//                commandFields.getConsoleManager().successfully("Команда update успешно выполнена");
+//
+//            }
+//            else {
+//                showLabWorkFields(labWork, commandFields.getConsoleManager());
+//                commandFields.getConsoleManager().output("Выберете пункт, который хотите изменить или введите 0, чтобы завершить обновление: ");
+//                while (choosePunct(commandFields.getScanner().nextLine(), commandFields.getConsoleManager(), checker, commandFields.getScanner(), labWork)) {
+//                    showLabWorkFields(labWork, commandFields.getConsoleManager());
+//                    commandFields.getConsoleManager().output("Выберете пункт, который хотите изменить или введите 0, чтобы завершить обновление: ");
+//                }
+//            }
+//
+//
+//        } catch (NullPointerException nullPointerException) {
+//            commandFields.getConsoleManager().error("Вы не ввели значение");
+//        } catch (NumberFormatException numberFormatException) {
+//            commandFields.getConsoleManager().error("Введите число");
+//        }
 
 
     }

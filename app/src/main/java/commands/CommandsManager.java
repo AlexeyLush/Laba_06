@@ -21,13 +21,9 @@ public final class CommandsManager {
     private final Map<String, CommandAbstract> commandsList = new LinkedHashMap<String, CommandAbstract>();
     private Scanner scanner;
     private final ConsoleManager consoleManager;
-    private final DataFileManager dataFileManager;
-    private final ExecuteFileManager executeFileManager;
 
-    public CommandsManager(Scanner scanner, ConsoleManager consoleManager, DataFileManager dataFileManager, ExecuteFileManager executeFileManager){
+    public CommandsManager(Scanner scanner, ConsoleManager consoleManager){
         this.scanner = scanner;
-        this.dataFileManager = dataFileManager;
-        this.executeFileManager = executeFileManager;
         this.consoleManager = consoleManager;
 
         addCommand(new HelpCommand());
@@ -56,13 +52,14 @@ public final class CommandsManager {
         return new LinkedHashMap<>(this.commandsList);
     }
 
-    public void executeCommand(String command, LabWorkDAO labWorkDAO){
+    public void executeCommand(String command){
         String commandName = command.split(" ")[0].toLowerCase();
         try{
             if (commandsList.containsKey(commandName)){
-                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
-                        this, dataFileManager, consoleManager);
-                commandsList.get(commandName).execute(commandFields);
+//                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
+//                        this, dataFileManager, consoleManager);
+//                commandsList.get(commandName).execute(commandFields);
+                consoleManager.output("Команда выполнена!");
             }
             else{
                 throw new NotFoundCommandException();
@@ -76,12 +73,12 @@ public final class CommandsManager {
 
     }
 
-    public void executeCommand(String command, LabWorkDAO labWorkDAO, List<String> listExecutedFiles){
+    public void executeCommand(String command, List<String> listExecutedFiles){
         String commandName = command.split(" ")[0].toLowerCase();
         try{
             if (commandsList.containsKey(commandName)){
-                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
-                        this, dataFileManager, consoleManager);
+                CommandFields commandFields = new CommandFields(scanner, command,
+                        this, consoleManager);
                 commandFields.setListExecuteFiles(listExecutedFiles);
                 commandsList.get(commandName).execute(commandFields);
             }
@@ -96,11 +93,11 @@ public final class CommandsManager {
         }
     }
 
-    public void inputCommand(LabWorkDAO labWorkDAO) {
+    public void inputCommand() {
         try{
             consoleManager.output("Введите команду (help - показать список команд): ");
             String command = scanner.nextLine();
-            executeCommand(command, labWorkDAO);
+            executeCommand(command);
         } catch (NoSuchElementException e){
             consoleManager.warning("Принудительный выход...");
             App.exit();

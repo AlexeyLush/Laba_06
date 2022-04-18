@@ -30,7 +30,7 @@ public class ExecuteScriptCommand extends CommandAbstract {
     public void executeScriptsInFile(List<String> scripts, List<String> listExecuteFiles, CommandFields commandFields) throws CloneNotSupportedException {
         for (String command: scripts){
             CommandFields newCommandField = commandFields.clone(command, listExecuteFiles);
-            commandFields.getCommandsManager().executeCommand(command, newCommandField.getLabWorkDAO(), listExecuteFiles);
+            commandFields.getCommandsManager().executeCommand(command, listExecuteFiles);
         }
     }
 

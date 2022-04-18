@@ -22,12 +22,12 @@ public class InfoCommand extends CommandAbstract {
 
     @Override
     public void execute(CommandFields commandFields) {
-        String date = new ParserJSON(commandFields.getConsoleManager()).getDataFromFile(commandFields.getDataFileManager().readFile());
-
-        commandFields.getConsoleManager().warning("-------------------------------------------------------------");
-        commandFields.getConsoleManager().outputln(String.format("Время инициализации: %s", ZonedDateTime.parse(date).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
-        commandFields.getConsoleManager().outputln(String.format("Тип коллекции: %s", commandFields.getLabWorkDAO().getAll().getClass()));
-        commandFields.getConsoleManager().outputln(String.format("Кол-во элментов: %s", commandFields.getLabWorkDAO().getAll().size()));
-        commandFields.getConsoleManager().warning("-------------------------------------------------------------");
+//        String date = new ParserJSON(commandFields.getConsoleManager()).getDataFromFile(commandFields.getDataFileManager().readFile());
+//
+//        commandFields.getConsoleManager().warning("-------------------------------------------------------------");
+//        commandFields.getConsoleManager().outputln(String.format("Время инициализации: %s", ZonedDateTime.parse(date).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
+//        commandFields.getConsoleManager().outputln(String.format("Тип коллекции: %s", commandFields.getLabWorkDAO().getAll().getClass()));
+//        commandFields.getConsoleManager().outputln(String.format("Кол-во элментов: %s", commandFields.getLabWorkDAO().getAll().size()));
+//        commandFields.getConsoleManager().warning("-------------------------------------------------------------");
     }
 }

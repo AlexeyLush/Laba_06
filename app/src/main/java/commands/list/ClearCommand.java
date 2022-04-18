@@ -16,7 +16,7 @@ public class ClearCommand extends CommandAbstract {
 
     @Override
     public void execute(CommandFields commandFields) {
-        commandFields.getLabWorkDAO().clear();
+//        commandFields.getLabWorkDAO().clear();
         commandFields.getConsoleManager().successfully("Команда clear успешно выполнена");
     }
 }

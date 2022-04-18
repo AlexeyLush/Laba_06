@@ -20,19 +20,19 @@ public class ShowCommand extends CommandAbstract {
     @Override
     public void execute(CommandFields commandFields) {
 
-        try{
-            if (commandFields.getLabWorkDAO().getAll().size() > 0){
-                commandFields.getConsoleManager().warning("----------------------------------------------");
-            }
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                commandFields.getConsoleManager().outputln(String.format("Ключ: %s", entry.getKey()));
-                commandFields.getConsoleManager().outputln(entry.getValue().toString());
-                commandFields.getConsoleManager().warning("----------------------------------------------");
-            }
-        }
-        catch (NullPointerException nullPointerException){
-            commandFields.getConsoleManager().error("Ошибка!");
-        }
+//        try{
+//            if (commandFields.getLabWorkDAO().getAll().size() > 0){
+//                commandFields.getConsoleManager().warning("----------------------------------------------");
+//            }
+//            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+//                commandFields.getConsoleManager().outputln(String.format("Ключ: %s", entry.getKey()));
+//                commandFields.getConsoleManager().outputln(entry.getValue().toString());
+//                commandFields.getConsoleManager().warning("----------------------------------------------");
+//            }
+//        }
+//        catch (NullPointerException nullPointerException){
+//            commandFields.getConsoleManager().error("Ошибка!");
+//        }
     }
 
 }
