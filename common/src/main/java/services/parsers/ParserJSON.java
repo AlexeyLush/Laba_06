@@ -25,12 +25,10 @@ import java.util.TimeZone;
 public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, LabWork> {
 
     private final ObjectMapper mapper;
-    private final ConsoleManager consoleManager;
 
     public ParserJSON(ConsoleManager consoleManager){
         mapper = new ObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm");
-        this.consoleManager = consoleManager;
         mapper.registerModule(new JSR310Module());
         mapper.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
         mapper.setDateFormat(df);
@@ -53,9 +51,8 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
             TypeReference<LabWork> typeRef = new TypeReference<LabWork>() {};
             return mapper.readValue(json, typeRef);
         } catch (IOException e) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
+            return new LabWork();
         }
-        return new LabWork();
     }
 
     @Override
@@ -64,7 +61,7 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
         try {
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(elements);
         } catch (JsonProcessingException e) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
+            return json;
         }
         return json;
     }
@@ -77,7 +74,6 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
             Map<String, LabWork> res = mapper.convertValue(collection, new TypeReference<LinkedHashMap<String, LabWork>>() {});
             return res;
         } catch (IOException | IllegalArgumentException exception) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
             return null;
         }
     }
@@ -89,7 +85,7 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
         try {
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(elements);
         } catch (JsonProcessingException e) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
+            return json;
         }
         return json;
     }
@@ -104,7 +100,6 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
             modelParse.setCollection(map);
             res = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(modelParse);
         } catch (IOException e) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
             return null;
         }
         return res;
@@ -116,7 +111,6 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
             JsonNode root = mapper.readTree(file);
             date = root.get("date").asText();
         } catch (IOException e) {
-            consoleManager.error("Во время парсинга данных произошла ошибка");
             return null;
         }
         return date;
