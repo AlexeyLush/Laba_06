@@ -2,10 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
+import response.Response;
 
 /**
  * Команда группировки элементов коллекции по значению поля name, вывод количества элементов в каждой группе
@@ -19,7 +16,7 @@ public class GroupCountingByNameCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 //        Map<Character, Integer> groupByName = new LinkedHashMap<>();
 //        try{
 //            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
@@ -39,5 +36,6 @@ public class GroupCountingByNameCommand extends CommandAbstract {
 //        } catch (NullPointerException nullPointerException){
 //            commandFields.getConsoleManager().error("Ошибка!");
 //        }
+        return null;
     }
 }

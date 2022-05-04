@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import io.ConsoleManager;
 import models.LabWork;
+import request.Request;
+import response.Response;
 import services.model.ModelParse;
 import services.parsers.interfaces.ParserElement;
 import services.parsers.interfaces.ParserMap;
@@ -22,11 +24,11 @@ import java.util.TimeZone;
  * Класс для парсинга JSON файлов
  */
 
-public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, LabWork> {
+public class ParserJSON implements ParserElement, ParserMap<String, LabWork> {
 
     private final ObjectMapper mapper;
 
-    public ParserJSON(ConsoleManager consoleManager){
+    public ParserJSON(){
         mapper = new ObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm");
         mapper.registerModule(new JSR310Module());
@@ -45,18 +47,37 @@ public class ParserJSON implements ParserElement<LabWork>, ParserMap<String, Lab
         return isTrue;
     }
 
+
     @Override
-    public LabWork deserializeElement(String json) {
+    public <T> T deserializeElement(String json, Class<T> clazz) {
         try {
-            TypeReference<LabWork> typeRef = new TypeReference<LabWork>() {};
+            TypeReference<T> typeRef = new TypeReference<>() {};
             return mapper.readValue(json, typeRef);
         } catch (IOException e) {
-            return new LabWork();
+            return null;
+        }
+    }
+
+    public <T> T deserializeRequest(String json, Class<T> clazz) {
+        try {
+            TypeReference<Request> typeRef = new TypeReference<>() {};
+            return mapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public <T> T deserializeResponse(String json) {
+        try {
+            TypeReference<Response> typeRef = new TypeReference<>() {};
+            return mapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            return null;
         }
     }
 
     @Override
-    public String serializeElement(LabWork elements) {
+    public String serializeElement(Object elements) {
         String json = "";
         try {
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(elements);

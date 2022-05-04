@@ -17,7 +17,7 @@ public class SplitCommandOnIdAndJSON implements SplitCommand{
         splitCommand[0] = "";
         if (splitCommand.length == 2){
             json = String.join(" ", splitCommand);
-            if (!(new ParserJSON(consoleManager).isDeserializeElement(json))){
+            if (!(new ParserJSON().isDeserializeElement(json))){
                 key = splitCommand[1];
                 json = null;
             }
@@ -25,11 +25,11 @@ public class SplitCommandOnIdAndJSON implements SplitCommand{
         } else if (splitCommand.length > 2) {
             json = String.join(" ", splitCommand);
 
-            if (!(new ParserJSON(consoleManager).isDeserializeElement(json))){
+            if (!(new ParserJSON().isDeserializeElement(json))){
                 key = splitCommand[1];
                 splitCommand[1] = "";
                 json = String.join(" ", splitCommand);
-                if (!(new ParserJSON(consoleManager).isDeserializeElement(json))){
+                if (!(new ParserJSON().isDeserializeElement(json))){
                     json = null;
                     key += String.join(" ", splitCommand);
                 }

@@ -3,12 +3,11 @@ package commands;
 import commands.list.*;
 import commands.models.CommandFields;
 import dao.LabWorkDAO;
-import exception.NotFoundCommandException;
 import files.DataFileManager;
-import files.ExecuteFileManager;
 import io.ConsoleManager;
-import laba.App;
-import services.parsers.ParserJSON;
+import models.LabWork;
+import response.Response;
+import server.Server;
 
 import java.util.*;
 
@@ -21,15 +20,18 @@ public final class CommandsManager {
     private final Map<String, CommandAbstract> commandsList = new LinkedHashMap<String, CommandAbstract>();
     private Scanner scanner;
     private final ConsoleManager consoleManager;
+    private LabWorkDAO labWorkDAO;
+    private DataFileManager dataFileManager;
 
-    public CommandsManager(Scanner scanner, ConsoleManager consoleManager){
+    public CommandsManager(Scanner scanner, ConsoleManager consoleManager, LabWorkDAO labWorkDAO, DataFileManager dataFileManager){
         this.scanner = scanner;
         this.consoleManager = consoleManager;
+        this.labWorkDAO = labWorkDAO;
+        this.dataFileManager = dataFileManager;
 
         addCommand(new HelpCommand());
         addCommand(new InfoCommand());
         addCommand(new ClearCommand());
-        addCommand(new ExitCommand());
         addCommand(new SaveCommand());
         addCommand(new ExecuteScriptCommand());
         addCommand(new RemoveGreaterCommand());
@@ -52,56 +54,46 @@ public final class CommandsManager {
         return new LinkedHashMap<>(this.commandsList);
     }
 
-    public void executeCommand(String command){
+    public Response executeCommand(String command){
         String commandName = command.split(" ")[0].toLowerCase();
-        try{
-            if (commandsList.containsKey(commandName)){
-//                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
-//                        this, dataFileManager, consoleManager);
-//                commandsList.get(commandName).execute(commandFields);
-                consoleManager.output("Команда выполнена!");
+        try {
+            if (commandsList.containsKey(commandName)) {
+                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
+                        this, dataFileManager, consoleManager);
+                return commandsList.get(commandName).execute(commandFields);
             }
             else{
-                throw new NotFoundCommandException();
+                return new Response(Response.Status.ERROR, Response.Type.TEXT, "Команда не найдена\n");
             }
-        } catch (NotFoundCommandException e){
-            e.outputException();
         } catch (ArrayIndexOutOfBoundsException | NoSuchElementException e){
-            consoleManager.error("Команда не найдена");
-            scanner = new Scanner(System.in);
+            return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
         }
-
     }
 
-    public void executeCommand(String command, List<String> listExecutedFiles){
+    public void executeCommand(String command, LabWorkDAO labWorkDAO, List<String> listExecutedFiles){
         String commandName = command.split(" ")[0].toLowerCase();
         try{
             if (commandsList.containsKey(commandName)){
-                CommandFields commandFields = new CommandFields(scanner, command,
-                        this, consoleManager);
+                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
+                        this, dataFileManager, consoleManager);
                 commandFields.setListExecuteFiles(listExecutedFiles);
                 commandsList.get(commandName).execute(commandFields);
             }
-            else{
-                throw new NotFoundCommandException();
-            }
-        } catch (NotFoundCommandException e){
-            e.outputException();
         } catch (ArrayIndexOutOfBoundsException | NoSuchElementException e){
-            consoleManager.error("Команда не найдена");
+            consoleManager.error("Команда не найдена\n");
             scanner = new Scanner(System.in);
         }
     }
 
-    public void inputCommand() {
+
+    public Response inputCommand(String command) {
         try{
-            consoleManager.output("Введите команду (help - показать список команд): ");
-            String command = scanner.nextLine();
-            executeCommand(command);
+            return executeCommand(command);
         } catch (NoSuchElementException e){
             consoleManager.warning("Принудительный выход...");
-            App.exit();
+            Server.exit();
         }
+        return new Response(Response.Status.ERROR,Response.Type.TEXT, "Ошибка на сервере\n");
     }
 
 }

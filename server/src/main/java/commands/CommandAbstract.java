@@ -1,6 +1,7 @@
 package commands;
 
 import commands.models.CommandFields;
+import response.Response;
 
 /**
  * Абстрактный класс команд
@@ -12,7 +13,7 @@ public abstract class CommandAbstract {
     private String description;
     private String element;
 
-    public abstract void execute(CommandFields commandFields);
+    public abstract Response execute(CommandFields commandFields);
 
     public String showInfoCommand(){
         return getDescription();

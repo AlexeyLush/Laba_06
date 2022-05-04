@@ -2,7 +2,11 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import response.Response;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -18,9 +22,11 @@ public class HelpCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
+        String argument = "";
         for (Map.Entry<String, CommandAbstract> entry : commandFields.getCommandsManager().getCommandsList().entrySet()) {
-            commandFields.getConsoleManager().warning(entry.getValue().getDescription());
+            argument += String.format("%s%s",entry.getValue().getDescription(), System.lineSeparator());
         }
+        return new Response(Response.Status.OK, Response.Type.TEXT, argument);
     }
 }

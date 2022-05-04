@@ -2,32 +2,22 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import services.checkers.LabWorkChecker;
-import services.elementProcces.LabWorkProcess;
-import services.spliters.SplitCommandOnIdAndJSON;
-import models.Coordinates;
-import models.Difficulty;
-import models.LabWork;
-import models.Person;
-import services.parsers.ParserJSON;
-
-import java.time.ZonedDateTime;
-import java.util.Map;
+import response.Response;
 
 /**
- * Команда удаления из коллекции всех элементы, превышающие заданный
+ * команда удаления из коллекции всех элементов, меньших, чем заданный
  */
 
-public class RemoveGreaterCommand extends CommandAbstract {
+public class RemoveLowerCommand extends CommandAbstract {
 
-    public RemoveGreaterCommand() {
-        setTitle("remove_greater");
-        setDescription("remove_greater {element} : удалить из коллекции все элементы, превышающие заданный");
+    public RemoveLowerCommand() {
+        setTitle("remove_lower");
+        setDescription("remove_lower {element} : удалить из коллекции все элементы, меньшие, чем заданный");
     }
 
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 
 //        LabWorkProcess labWorkProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
 //        LabWorkChecker checker = new LabWorkChecker();
@@ -45,12 +35,14 @@ public class RemoveGreaterCommand extends CommandAbstract {
 //            labWork = labWorkProcess.getProcessedElement(labWork, checker);
 //        }
 //
-//
 //        for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-//            if (labWork.getDescription().length() < entry.getValue().getDescription().length()) {
+//            if (labWork.getDescription().length() > entry.getValue().getDescription().length()) {
 //                commandFields.getLabWorkDAO().delete(entry.getKey());
 //            }
 //        }
-//        commandFields.getConsoleManager().successfully("Команда remove_greater успешно выполнена");
+//        commandFields.getConsoleManager().successfully("Команда remove_lower успешно выполнена");
+
+
+        return null;
     }
 }

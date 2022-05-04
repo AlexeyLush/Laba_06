@@ -2,9 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
-
-import java.util.Map;
+import response.Response;
 
 /**
  * Команда вывова элементов, значение поля description которых больше заданного
@@ -18,7 +16,7 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 
 //        String[] commandSplited = commandFields.getCommand().split(" ");
 //        String description;
@@ -48,6 +46,6 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
 //        } catch (NullPointerException nullPointerException) {
 //            commandFields.getConsoleManager().error("Ошибка!");
 //        }
-
+        return null;
     }
 }

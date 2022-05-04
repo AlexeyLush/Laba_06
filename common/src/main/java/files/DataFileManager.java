@@ -138,18 +138,18 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
                 if (maxId < entry.getValue().getId()) {
                     maxId = entry.getValue().getId();
                 }
-                String key = labWorkChecker.checkUserKey(entry.getKey(), true, false);
-                Integer id = labWorkChecker.checkId(entry.getValue().getId().toString(), false);
-                ZonedDateTime dateTime = labWorkChecker.checkDate(entry.getValue().getCreationDate().toString(), false);
-                String name = labWorkChecker.checkNamePerson(entry.getValue().getName(), false);
-                Long coordX = labWorkChecker.checkX(entry.getValue().getCoordinates().getX().toString(), false);
-                Integer coordY = labWorkChecker.checkY(entry.getValue().getCoordinates().getY().toString(), false);
-                Float minimalPoint = labWorkChecker.checkMinimalPoint(entry.getValue().getMinimalPoint().toString(), false);
-                String description = labWorkChecker.checkDescription(entry.getValue().getDescription(), false);
-                Difficulty difficulty = labWorkChecker.checkDifficulty(entry.getValue().getDifficulty().toString(), false);
-                String authorName = labWorkChecker.checkNamePerson(entry.getValue().getAuthor().getName(), false);
-                Long authorWeight = labWorkChecker.checkWeightPerson(entry.getValue().getAuthor().getWeight().toString(), false);
-                String authorPassportId = labWorkChecker.checkPassportIdPerson(entry.getValue().getAuthor().getPassportID(), false);
+                String key = labWorkChecker.checkUserKey(entry.getKey());
+                Integer id = labWorkChecker.checkId(entry.getValue().getId().toString());
+                ZonedDateTime dateTime = labWorkChecker.checkDate(entry.getValue().getCreationDate().toString());
+                String name = labWorkChecker.checkNamePerson(entry.getValue().getName());
+                Long coordX = labWorkChecker.checkX(entry.getValue().getCoordinates().getX().toString());
+                Integer coordY = labWorkChecker.checkY(entry.getValue().getCoordinates().getY().toString());
+                Float minimalPoint = labWorkChecker.checkMinimalPoint(entry.getValue().getMinimalPoint().toString());
+                String description = labWorkChecker.checkDescription(entry.getValue().getDescription());
+                Difficulty difficulty = labWorkChecker.checkDifficulty(entry.getValue().getDifficulty().toString());
+                String authorName = labWorkChecker.checkNamePerson(entry.getValue().getAuthor().getName());
+                Long authorWeight = labWorkChecker.checkWeightPerson(entry.getValue().getAuthor().getWeight().toString());
+                String authorPassportId = labWorkChecker.checkPassportIdPerson(entry.getValue().getAuthor().getPassportID());
 
 
                 if (isCreateFile) {
@@ -161,7 +161,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
                         id = null;
                     }
                     while (id == null) {
-                        id = labWorkChecker.checkId(GenerationID.newId().toString(), false);
+                        id = labWorkChecker.checkId(GenerationID.newId().toString());
                         if (listId.contains(id)) {
                             id = null;
                         }
@@ -195,7 +195,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
 
         BufferedReader reader = null;
         try {
-            ParserJSON parserJSON = new ParserJSON(consoleManager);
+            ParserJSON parserJSON = new ParserJSON();
             reader = new BufferedReader(new FileReader(fileName));
             String s = "";
             String temp = "";
@@ -245,7 +245,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
 
     @Override
     public void save(Map<String, LabWork> labWorkMap) {
-        String jsonWithDate = new ParserJSON(consoleManager).jsonForWrite(readFile(), labWorkMap);
+        String jsonWithDate = new ParserJSON().jsonForWrite(readFile(), labWorkMap);
         if (jsonWithDate != null) {
             try (Writer writer = new BufferedWriter(new FileWriter(getFileName()))) {
                 writer.write(jsonWithDate);
@@ -301,7 +301,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
 
 
             modelParse.setCollection(labWorkMap);
-            String json = new ParserJSON(consoleManager).serializeModelParse(modelParse);
+            String json = new ParserJSON().serializeModelParse(modelParse);
             writer.write(json);
 
             writer.close();

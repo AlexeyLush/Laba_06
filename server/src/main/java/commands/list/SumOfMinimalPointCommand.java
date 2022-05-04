@@ -2,9 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
-
-import java.util.Map;
+import response.Response;
 
 
 /**
@@ -19,7 +17,7 @@ public class SumOfMinimalPointCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 //        float sum = 0;
 //        try{
 //            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
@@ -29,5 +27,7 @@ public class SumOfMinimalPointCommand extends CommandAbstract {
 //            commandFields.getConsoleManager().error("Ошибка при исполнение команды");
 //        }
 //        commandFields.getConsoleManager().outputln(String.format("Сумма всех minimalPoint: %f", sum));
+
+        return null;
     }
 }

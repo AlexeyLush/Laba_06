@@ -2,14 +2,12 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import models.LabWork;
+import response.Response;
 import services.checkers.LabWorkChecker;
 import services.elementProcces.LabWorkProcess;
-import services.spliters.SplitCommandOnIdAndJSON;
-import models.Coordinates;
-import models.Difficulty;
-import models.LabWork;
-import models.Person;
 import services.parsers.ParserJSON;
+import services.spliters.SplitCommandOnIdAndJSON;
 
 import java.time.ZonedDateTime;
 
@@ -26,7 +24,7 @@ public class InsertCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 
         LabWorkProcess labWorkProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
         LabWorkChecker checker = new LabWorkChecker();
@@ -38,11 +36,11 @@ public class InsertCommand extends CommandAbstract {
 
 
         if (json != null) {
-            labWork = new ParserJSON(commandFields.getConsoleManager()).deserializeElement(json);
+            labWork = new ParserJSON().deserializeElement(json, LabWork.class);
             labWork.setCreationDate(ZonedDateTime.now());
         }
 
-        while (checker.checkUserKey(key, true, true) == null) {
+        while (checker.checkUserKey(key) == null) {
             commandFields.getConsoleManager().output("Введите ключ: ");
             key = commandFields.getScanner().nextLine();
         }
@@ -54,6 +52,8 @@ public class InsertCommand extends CommandAbstract {
         }
 
         commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+
+        return new Response(null, null, null);
 
     }
 }

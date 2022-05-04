@@ -2,7 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import exception.NotFoundKeyException;
+import response.Response;
 
 /**
  * Команда удаления элементов из коллекции по его ключу
@@ -16,7 +16,7 @@ public class RemoveKeyCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 //        String[] commandSplited = commandFields.getCommand().split(" ");
 //        String key = "";
 //        if (commandSplited.length == 1){
@@ -49,6 +49,6 @@ public class RemoveKeyCommand extends CommandAbstract {
 //            }
 //        }
 
-
+        return null;
     }
 }

@@ -2,16 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import services.checkers.LabWorkChecker;
-import services.elementProcces.LabWorkProcess;
-import services.spliters.SplitCommandOnIdAndJSON;
-import models.Coordinates;
-import models.Difficulty;
-import models.LabWork;
-import models.Person;
-import services.parsers.ParserJSON;
-
-import java.time.ZonedDateTime;
+import response.Response;
 
 /**
  * Команда замещения значений по ключу, если новое значение меньше старого
@@ -25,7 +16,7 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 
 //        LabWorkProcess labWorkProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
 //        LabWorkChecker checker = new LabWorkChecker();
@@ -64,5 +55,8 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
 //            commandFields.getLabWorkDAO().create(key, labWork);
 //        }
 //        commandFields.getConsoleManager().successfully("Команда replace_if_lower успешно выполнена");
+
+        return null;
+
     }
 }

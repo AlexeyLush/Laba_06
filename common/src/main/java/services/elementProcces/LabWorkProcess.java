@@ -20,7 +20,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
     }
 
 
-    public void nameProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void nameProcess(LabWork labWork, LabWorkChecker checker, boolean withError) {
 
         String tempName = labWork.getName();
 
@@ -30,13 +30,13 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             }
             while (tempName == null) {
                 consoleManager.output("Введите название лабораторной работы: ");
-                tempName = checker.checkUserNameLab(scanner.nextLine(), consoleManager, withMessage);
+                tempName = checker.checkUserNameLab(scanner.nextLine());
             }
         }
         labWork.setName(tempName);
     }
 
-    public void coordinateProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void coordinateProcess(LabWork labWork) {
         Coordinates tempCoordinates = labWork.getCoordinates();
 
         if (tempCoordinates == null) {
@@ -46,7 +46,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
         labWork.setCoordinates(tempCoordinates);
 
     }
-    public void coordinateXProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
+    public void coordinateXProcess(LabWork labWork, LabWorkChecker checker, boolean withError){
         Long tempX = labWork.getCoordinates().getX();
         if (tempX == null) {
             if (withError){
@@ -55,14 +55,14 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempX == null) {
                 consoleManager.output("Введите координату X: ");
-                tempX = checker.checkX(scanner.nextLine(), consoleManager, withMessage);
+                tempX = checker.checkX(scanner.nextLine());
             }
         }
         Coordinates coordinates = labWork.getCoordinates();
         coordinates.setX(tempX);
         labWork.setCoordinates(coordinates);
     }
-    public void coordinateYProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
+    public void coordinateYProcess(LabWork labWork, LabWorkChecker checker, boolean withError){
         Integer tempY = labWork.getCoordinates().getY();
         if (tempY == null) {
             if (withError){
@@ -71,7 +71,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempY == null) {
                 consoleManager.output("Введите координату Y: ");
-                tempY = checker.checkY(scanner.nextLine(), consoleManager, withMessage);
+                tempY = checker.checkY(scanner.nextLine());
             }
         }
 
@@ -80,7 +80,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
         labWork.setCoordinates(coordinates);
     }
 
-    public void minimalPointProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void minimalPointProcess(LabWork labWork, LabWorkChecker checker, boolean withError) {
         Float tempMinimalFloat = labWork.getMinimalPoint();
         if (tempMinimalFloat == null) {
 
@@ -90,12 +90,12 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempMinimalFloat == null) {
                 consoleManager.output("Введите минимальную точку: ");
-                tempMinimalFloat = checker.checkMinimalPoint(scanner.nextLine(), consoleManager, withMessage);
+                tempMinimalFloat = checker.checkMinimalPoint(scanner.nextLine());
             }
         }
         labWork.setMinimalPoint(tempMinimalFloat);
     }
-    public void descriptionProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void descriptionProcess(LabWork labWork, LabWorkChecker checker, boolean withError) {
         String tempDescription = labWork.getDescription();
         if (tempDescription == null) {
 
@@ -105,12 +105,12 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempDescription == null) {
                 consoleManager.output("Введите описание лабораторной работы: ");
-                tempDescription = checker.checkDescription(scanner.nextLine(), consoleManager, withMessage);
+                tempDescription = checker.checkDescription(scanner.nextLine());
             }
         }
         labWork.setDescription(tempDescription);
     }
-    public void difficultyProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void difficultyProcess(LabWork labWork, LabWorkChecker checker, boolean withError) {
 
         Difficulty tempDifficulty = labWork.getDifficulty();
         if (tempDifficulty == null) {
@@ -124,13 +124,13 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
                     consoleManager.warning(String.format("%s", difficulties[i]));
                 }
                 consoleManager.output("Введите сложность работы: ");
-                tempDifficulty = checker.checkDifficulty(scanner.nextLine(), consoleManager, withMessage);
+                tempDifficulty = checker.checkDifficulty(scanner.nextLine());
             }
         }
         labWork.setDifficulty(tempDifficulty);
     }
 
-    public void personProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage) {
+    public void personProcess(LabWork labWork) {
         Person tempAuthor = labWork.getAuthor();
 
         if (tempAuthor == null) {
@@ -140,7 +140,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
         labWork.setAuthor(tempAuthor);
 
     }
-    public void personNameProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
+    public void personNameProcess(LabWork labWork, LabWorkChecker checker, boolean withError){
         String tempAuthorName = labWork.getAuthor().getName();
         if (tempAuthorName == null) {
 
@@ -150,7 +150,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempAuthorName == null) {
                 consoleManager.output("Введите имя автора: ");
-                tempAuthorName = checker.checkNamePerson(scanner.nextLine(), consoleManager, withMessage);
+                tempAuthorName = checker.checkNamePerson(scanner.nextLine());
             }
         }
 
@@ -158,7 +158,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
         person.setName(tempAuthorName);
         labWork.setAuthor(person);
     }
-    public void personWeightProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
+    public void personWeightProcess(LabWork labWork, LabWorkChecker checker, boolean withError){
 
         Long tempAuthorWeight = labWork.getAuthor().getWeight();
         if (tempAuthorWeight == null) {
@@ -169,7 +169,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempAuthorWeight == null) {
                 consoleManager.output("Введите вес: ");
-                tempAuthorWeight = checker.checkWeightPerson(scanner.nextLine(), consoleManager, withMessage);
+                tempAuthorWeight = checker.checkWeightPerson(scanner.nextLine());
             }
         }
 
@@ -177,7 +177,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
         person.setWeight(tempAuthorWeight);
         labWork.setAuthor(person);
     }
-    public void personPassportIdProcess(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
+    public void personPassportIdProcess(LabWork labWork, LabWorkChecker checker, boolean withError){
 
         String tempAuthorPassportId = labWork.getAuthor().getPassportID();
 
@@ -188,7 +188,7 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
 
             while (tempAuthorPassportId == null) {
                 consoleManager.output("Введите id паспорта: ");
-                tempAuthorPassportId = checker.checkPassportIdPerson(scanner.nextLine(), consoleManager, withMessage);
+                tempAuthorPassportId = checker.checkPassportIdPerson(scanner.nextLine());
             }
         }
 
@@ -198,20 +198,20 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
     }
 
     private LabWork processElement(LabWork labWork, LabWorkChecker checker, boolean withError, boolean withMessage){
-        nameProcess(labWork, checker, withError, withMessage);
+        nameProcess(labWork, checker, withError);
 
-        coordinateProcess(labWork, checker,withError, withMessage);
-        coordinateXProcess(labWork, checker,withError, withMessage);
-        coordinateYProcess(labWork, checker,withError, withMessage);
+        coordinateProcess(labWork);
+        coordinateXProcess(labWork, checker,withError);
+        coordinateYProcess(labWork, checker,withError);
 
-        minimalPointProcess(labWork, checker, withError, withMessage);
-        descriptionProcess(labWork, checker, withError, withMessage);
-        difficultyProcess(labWork, checker, withError, withMessage);
+        minimalPointProcess(labWork, checker, withError);
+        descriptionProcess(labWork, checker, withError);
+        difficultyProcess(labWork, checker, withError);
 
-        personProcess(labWork, checker, withError, withMessage);
-        personNameProcess(labWork, checker, withError, withMessage);
-        personWeightProcess(labWork, checker, withError, withMessage);
-        personPassportIdProcess(labWork, checker, withError, withMessage);
+        personProcess(labWork);
+        personNameProcess(labWork, checker, withError);
+        personWeightProcess(labWork, checker, withError);
+        personPassportIdProcess(labWork, checker, withError);
 
         return labWork;
     }

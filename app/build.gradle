@@ -55,4 +55,12 @@ jar {
         attributes "Main-Class": "laba.App"
     }
 
+
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+
+    setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
 }

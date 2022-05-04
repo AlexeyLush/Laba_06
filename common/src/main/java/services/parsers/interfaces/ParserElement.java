@@ -4,9 +4,9 @@ package services.parsers.interfaces;
  * Интерфейс для парсинга элементов
  */
 
-public interface ParserElement<T> {
+public interface ParserElement {
 
-    T deserializeElement(String json);
-    String serializeElement(T elements);
+    <T> T deserializeElement(String json, Class<T> tClass);
+    String serializeElement(Object elements);
 
 }

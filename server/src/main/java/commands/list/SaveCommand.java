@@ -2,6 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import response.Response;
 
 /**
  * Команда сохранения коллекции в файл
@@ -15,7 +16,8 @@ public class SaveCommand extends CommandAbstract {
     }
 
     @Override
-    public void execute(CommandFields commandFields) {
+    public Response execute(CommandFields commandFields) {
 //        commandFields.getDataFileManager().save(commandFields.getLabWorkDAO().getAll());
+        return null;
     }
 }

@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 public class LabWorkChecker extends Checker {
 
-    public String checkUserKey(String key, boolean isUnique, boolean withError) {
+    public String checkUserKey(String key) {
         if (key == null) {
             return null;
         } else if (key.isEmpty() || key.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || key.contains(" ") || key.contains("\t")) {
@@ -20,7 +20,7 @@ public class LabWorkChecker extends Checker {
             return key;
         }
     }
-    public Integer checkId(String id, boolean withError){
+    public Integer checkId(String id){
         Integer returnId = null;
 
         try{
@@ -37,7 +37,7 @@ public class LabWorkChecker extends Checker {
         return returnId;
 
     }
-    public ZonedDateTime checkDate(String date, boolean withError){
+    public ZonedDateTime checkDate(String date){
         ZonedDateTime returnDate;
         try {
             returnDate = ZonedDateTime.parse(date);
@@ -46,7 +46,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnDate;
     }
-    public String checkUserNameLab(String name, boolean withError){
+    public String checkUserNameLab(String name){
 
         String returnName = null;
         returnName = name;
@@ -55,7 +55,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnName;
     }
-    public Long checkX(String x, boolean withError){
+    public Long checkX(String x){
         Long returnX = null;
         Coordinates tempCoordinates = new Coordinates();
         try {
@@ -68,7 +68,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnX;
     }
-    public Integer checkY(String y, boolean withError){
+    public Integer checkY(String y){
         Integer returnY = null;
         try {
             returnY = Integer.parseInt(y);
@@ -77,7 +77,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnY;
     }
-    public Float checkMinimalPoint(String minimalPoint, boolean withError){
+    public Float checkMinimalPoint(String minimalPoint){
         Float returnMinimalPoint = null;
         try {
             if (minimalPoint == null){
@@ -92,7 +92,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnMinimalPoint;
     }
-    public String checkDescription(String description, boolean withError){
+    public String checkDescription(String description){
         String returnDescription;
 
             returnDescription = description;
@@ -102,7 +102,7 @@ public class LabWorkChecker extends Checker {
 
         return returnDescription;
     }
-    public Difficulty checkDifficulty(String difficultyString, boolean withError){
+    public Difficulty checkDifficulty(String difficultyString){
         Difficulty difficulty = Difficulty.isDifficulty(difficultyString);
 
         if (difficulty == null){
@@ -111,7 +111,7 @@ public class LabWorkChecker extends Checker {
 
         return difficulty;
     }
-    public String checkNamePerson(String name, boolean withError){
+    public String checkNamePerson(String name){
         String returnName;
             returnName = name;
             if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
@@ -119,7 +119,7 @@ public class LabWorkChecker extends Checker {
             }
         return returnName;
     }
-    public Long checkWeightPerson(String weight, boolean withError){
+    public Long checkWeightPerson(String weight){
 
         Long returnWeight = null;
         try{
@@ -135,7 +135,7 @@ public class LabWorkChecker extends Checker {
         }
         return returnWeight;
     }
-    public String checkPassportIdPerson(String passport, boolean withError){
+    public String checkPassportIdPerson(String passport){
         String returnPassportId = null;
         returnPassportId = passport;
         if (returnPassportId == null || returnPassportId.isEmpty() || returnPassportId.replaceAll(" ", "").replaceAll("\t", "").length() == 0){

@@ -26,4 +26,11 @@ jar {
         attributes "Main-Class": "server.Server"
     }
 
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+
+    setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
 }
