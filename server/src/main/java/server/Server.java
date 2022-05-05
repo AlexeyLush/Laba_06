@@ -35,7 +35,7 @@ public class Server {
         isRun = false;
     }
 
-    public static void getDataFromFile(String dataFileName, String tempFileName, ConsoleManager consoleManager, Scanner scanner, LabWorkDAO labWorkDAO, DataFileManager dataFileManager) {
+    public static void getDataFromFile(String dataFileName, String tempFileName, LabWorkDAO labWorkDAO, DataFileManager dataFileManager) {
         String fileName = dataFileName;
         if (!dataFileManager.isMainFile()) {
             fileName = tempFileName;
@@ -92,7 +92,11 @@ public class Server {
         SocketAddress address = new InetSocketAddress(port);
         DatagramChannel datagramChannel = openChannel(address, consoleManager);
 
-        consoleManager.successfully("Серевер запущен!");
+        if (datagramChannel != null){
+            getDataFromFile(dataFileManager.getFileName(), dataFileManager.getTempFileName(), labWorkDAO, dataFileManager);
+            consoleManager.successfully("Серевер запущен!");
+        }
+
 
         while (isRun) {
 
@@ -138,11 +142,8 @@ public class Server {
         }
 
         if (isRun) {
-
             LabWorkDAO labWorkDAO = new LabWorkDAO();
             int port = 6790;
-
-            getDataFromFile(dataFileName, tempFileName, consoleManager, scanner, labWorkDAO, dataFileManager);
             run(consoleManager, scanner, port, labWorkDAO, dataFileManager);
         }
 

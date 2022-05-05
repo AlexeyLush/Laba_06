@@ -32,7 +32,7 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
     private final ConsoleManager consoleManager;
     private final Scanner scanner;
     private final String tempFileName;
-    private boolean isMainFile;
+    private final boolean isMainFile;
 
     public DataFileManager(String fileName, String tempFileName, ConsoleManager consoleManager, Scanner scanner) {
         super(fileName);
@@ -374,4 +374,9 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
             consoleManager.error("Во время работы программы возникла проблема с файлом");
         }
     }
+
+    public String getTempFileName(){
+        return this.tempFileName;
+    }
+
 }

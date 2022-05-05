@@ -36,7 +36,7 @@ public class InsertCommand extends CommandAbstract {
 
 
         if (json != null) {
-            labWork = new ParserJSON().deserializeElement(json, LabWork.class);
+            labWork = new ParserJSON().deserializeLabWork(json);
             labWork.setCreationDate(ZonedDateTime.now());
         }
 

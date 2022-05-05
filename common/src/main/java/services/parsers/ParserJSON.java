@@ -58,6 +58,15 @@ public class ParserJSON implements ParserElement, ParserMap<String, LabWork> {
         }
     }
 
+    public LabWork deserializeLabWork(String json){
+        try {
+            TypeReference<LabWork> typeRef = new TypeReference<>() {};
+            return mapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public <T> T deserializeRequest(String json, Class<T> clazz) {
         try {
             TypeReference<Request> typeRef = new TypeReference<>() {};
