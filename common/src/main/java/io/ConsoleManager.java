@@ -11,9 +11,11 @@ import io.output.MessageOutput;
 public class ConsoleManager implements ConsoleOutput, MessageOutput {
 
     private boolean isColorConsole;
+    private boolean logMode;
 
-    public ConsoleManager(boolean isColorConsole) {
+    public ConsoleManager(boolean isColorConsole, boolean logMode) {
         this.isColorConsole = isColorConsole;
+        this.logMode = logMode;
     }
 
     public void setColorConsole(boolean colorConsole) {
@@ -42,22 +44,42 @@ public class ConsoleManager implements ConsoleOutput, MessageOutput {
 
     @Override
     public void info(String message) {
-        outputln("[INFO]: " + message);
+        if (logMode){
+            outputln("[INFO]: " + message);
+        }
+        else{
+            outputln(message);
+        }
     }
 
     @Override
     public void error(String message) {
-        outputWithColor("[ERROR]: " + message, ColorConsole.ANSI_RED);
+        if (logMode){
+            outputWithColor("[ERROR]: " + message, ColorConsole.ANSI_RED);
+        } else{
+            outputWithColor(message, ColorConsole.ANSI_RED);
+        }
+
     }
 
     @Override
     public void warning(String message) {
-        outputWithColor("[WARN]: " + message, ColorConsole.ANSI_YELLOW);
+        if (logMode){
+            outputWithColor("[WARN]: " + message, ColorConsole.ANSI_YELLOW);
+        } else {
+            outputWithColor(message, ColorConsole.ANSI_YELLOW);
+        }
+
     }
 
     @Override
     public void successfully(String message) {
-        outputWithColor("[SUCCESSFULLY]: " + message, ColorConsole.ANSI_GREEN);
+        if (logMode){
+            outputWithColor("[SUCCESSFULLY]: " + message, ColorConsole.ANSI_GREEN);
+        }
+        else {
+            outputWithColor(message, ColorConsole.ANSI_GREEN);
+        }
     }
 
 }

@@ -7,6 +7,7 @@ public class Response {
     public Status status;
     public Type type;
     public Object argument;
+    public String message;
 
     public Response(){
 
@@ -19,11 +20,13 @@ public class Response {
         } else {
             this.argument = new ParserJSON().serializeElement(argument);
         }
+        message = null;
     }
 
     public enum Type {
         LIST,
-        TEXT
+        TEXT,
+        INSERT
     }
 
     public enum Status {

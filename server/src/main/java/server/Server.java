@@ -116,7 +116,7 @@ public class Server {
 
 
             Request request = getRequest(buffer);
-            Response response = commandsManager.inputCommand(request.commandName);
+            Response response = commandsManager.inputCommand(request);
             byte[] responseByte = createResponseByte(response);
 
             buffer.flip();
@@ -129,7 +129,7 @@ public class Server {
 
     public static void main(String[] args) {
 
-        ConsoleManager consoleManager = new ConsoleManager(true);
+        ConsoleManager consoleManager = new ConsoleManager(true, true);
 
         Scanner scanner = new Scanner(System.in);
 

@@ -6,6 +6,7 @@ import dao.LabWorkDAO;
 import files.DataFileManager;
 import io.ConsoleManager;
 import models.LabWork;
+import request.Request;
 import response.Response;
 import server.Server;
 
@@ -54,12 +55,12 @@ public final class CommandsManager {
         return new LinkedHashMap<>(this.commandsList);
     }
 
-    public Response executeCommand(String command){
-        String commandName = command.split(" ")[0].toLowerCase();
+    public Response executeCommand(Request request){
+        String commandName = request.commandName.split(" ")[0].toLowerCase();
         try {
             if (commandsList.containsKey(commandName)) {
-                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
-                        this, dataFileManager, consoleManager);
+                CommandFields commandFields = new CommandFields(scanner, request.commandName, labWorkDAO,
+                        this, dataFileManager, consoleManager, request);
                 return commandsList.get(commandName).execute(commandFields);
             }
             else{
@@ -70,25 +71,26 @@ public final class CommandsManager {
         }
     }
 
-    public void executeCommand(String command, LabWorkDAO labWorkDAO, List<String> listExecutedFiles){
-        String commandName = command.split(" ")[0].toLowerCase();
+    public Response executeCommand(Request request, LabWorkDAO labWorkDAO, List<String> listExecutedFiles){
+        String commandName = request.commandName.split(" ")[0].toLowerCase();
         try{
             if (commandsList.containsKey(commandName)){
-                CommandFields commandFields = new CommandFields(scanner, command, labWorkDAO,
-                        this, dataFileManager, consoleManager);
+                CommandFields commandFields = new CommandFields(scanner, commandName, labWorkDAO,
+                        this, dataFileManager, consoleManager, request);
                 commandFields.setListExecuteFiles(listExecutedFiles);
-                commandsList.get(commandName).execute(commandFields);
+                return commandsList.get(commandName).execute(commandFields);
+            } else {
+                return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
             }
         } catch (ArrayIndexOutOfBoundsException | NoSuchElementException e){
-            consoleManager.error("Команда не найдена\n");
-            scanner = new Scanner(System.in);
+            return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
         }
     }
 
 
-    public Response inputCommand(String command) {
+    public Response inputCommand(Request request) {
         try{
-            return executeCommand(command);
+            return executeCommand(request);
         } catch (NoSuchElementException e){
             consoleManager.warning("Принудительный выход...");
             Server.exit();

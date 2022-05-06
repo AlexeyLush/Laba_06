@@ -31,6 +31,9 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempName == null) {
                 consoleManager.output("Введите название лабораторной работы: ");
                 tempName = checker.checkUserNameLab(scanner.nextLine());
+                if (tempName == null){
+                    consoleManager.error("Вы не ввели название работы");
+                }
             }
         }
         labWork.setName(tempName);
@@ -56,6 +59,10 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempX == null) {
                 consoleManager.output("Введите координату X: ");
                 tempX = checker.checkX(scanner.nextLine());
+                if (tempX == null){
+                    consoleManager.error("Введите число не более " + labWork.getCoordinates().getMaxCoordinateX());
+
+                }
             }
         }
         Coordinates coordinates = labWork.getCoordinates();
@@ -72,6 +79,9 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempY == null) {
                 consoleManager.output("Введите координату Y: ");
                 tempY = checker.checkY(scanner.nextLine());
+                if (tempY == null){
+                    consoleManager.error("Введите число");
+                }
             }
         }
 
@@ -91,6 +101,10 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempMinimalFloat == null) {
                 consoleManager.output("Введите минимальную точку: ");
                 tempMinimalFloat = checker.checkMinimalPoint(scanner.nextLine());
+
+                if (tempMinimalFloat == null){
+                    consoleManager.error("Введите число больше нуля");
+                }
             }
         }
         labWork.setMinimalPoint(tempMinimalFloat);
@@ -106,6 +120,11 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempDescription == null) {
                 consoleManager.output("Введите описание лабораторной работы: ");
                 tempDescription = checker.checkDescription(scanner.nextLine());
+
+                if (tempDescription == null){
+                    consoleManager.error("Вы не ввели описание");
+                }
+
             }
         }
         labWork.setDescription(tempDescription);
@@ -125,6 +144,10 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
                 }
                 consoleManager.output("Введите сложность работы: ");
                 tempDifficulty = checker.checkDifficulty(scanner.nextLine());
+
+                if (tempDifficulty == null){
+                    consoleManager.error("Введите сложность, предложенную из списка");
+                }
             }
         }
         labWork.setDifficulty(tempDifficulty);
@@ -151,6 +174,9 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempAuthorName == null) {
                 consoleManager.output("Введите имя автора: ");
                 tempAuthorName = checker.checkNamePerson(scanner.nextLine());
+                if (tempAuthorName == null){
+                    consoleManager.error("Вы не ввели имя автора");
+                }
             }
         }
 
@@ -170,6 +196,9 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempAuthorWeight == null) {
                 consoleManager.output("Введите вес: ");
                 tempAuthorWeight = checker.checkWeightPerson(scanner.nextLine());
+                if (tempAuthorWeight == null){
+                    consoleManager.error("Введите число большье нуля");
+                }
             }
         }
 
@@ -189,6 +218,9 @@ public class LabWorkProcess implements ElementProcess<LabWork, LabWorkChecker> {
             while (tempAuthorPassportId == null) {
                 consoleManager.output("Введите id паспорта: ");
                 tempAuthorPassportId = checker.checkPassportIdPerson(scanner.nextLine());
+                if (tempAuthorPassportId == null){
+                    consoleManager.error("Вы не ввели id паспорта");
+                }
             }
         }
 
