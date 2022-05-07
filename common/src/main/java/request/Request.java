@@ -14,7 +14,7 @@ public class Request {
 
     public Request(String commandName, Object element) {
         this.commandName = commandName;
-        this.element = new ParserJSON().serializeElement(element);
+        this.element = element;
     }
 
     public <T> T getArgumentAs(Class<T> clazz) {

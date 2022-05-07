@@ -1,1 +1,2 @@
-update 1 {"id" : 1,"coordinates" : {"x" : 3,"y" : 3, "maxCoordinateX" : 713},"creationDate" : 1647857155.361542000,"minimalPoint" : 5.0,"description" : "Это обнова", "difficulty" : "NORMAL", "author" : {"name" : "Обнови имя", "weight" : 26, "passportID" : "336803"}}
+show
+show

@@ -85,12 +85,15 @@ public class InsertCommand extends CommandAbstract {
         } else {
             Request request = commandFields.getRequest();
             labWork = new LabWork();
-
-            Map.Entry<String, LabWork> labWorkEntry = new ParserJSON().deserializeEntryLabWork(request.element.toString());
-            if (labWorkEntry != null) {
-                labWork = labWorkEntry.getValue();
-                key = labWorkEntry.getKey();
+            Map.Entry<String, LabWork> labWorkEntry;
+            if (request.element != null){
+                labWorkEntry = new ParserJSON().deserializeEntryLabWork(request.element.toString());
+                if (labWorkEntry != null) {
+                    labWork = labWorkEntry.getValue();
+                    key = labWorkEntry.getKey();
+                }
             }
+
 
             if (key != null){
                 if (commandFields.getLabWorkDAO().getAll().containsKey(key)){

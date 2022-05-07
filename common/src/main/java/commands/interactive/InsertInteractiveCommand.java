@@ -44,7 +44,7 @@ public class InsertInteractiveCommand implements InteractiveCommand {
         labWork = labWorkProcess.getProcessedElement(labWork, checker);
         entry = Map.entry(key, labWork);
 
-        return new Request("insert", entry);
+        return new Request("insert", new ParserJSON().serializeElement(entry));
 
     }
 }

@@ -1,4 +1,5 @@
 package laba;
+import commands.interactive.ExecuteScriptInteractiveCommand;
 import commands.interactive.InsertInteractiveCommand;
 import dao.LabWorkDAO;
 import files.DataFileManager;
@@ -50,7 +51,7 @@ public class App {
     }
     private static Request createRequestInsertCommand(ConsoleManager consoleManager, Scanner scanner, Response response){
         InsertInteractiveCommand insertInteractiveCommand = new InsertInteractiveCommand();
-        return  insertInteractiveCommand.inputData(consoleManager, scanner, response);
+        return insertInteractiveCommand.inputData(consoleManager, scanner, response);
     }
     private static Response getResponseInsertCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket, byte[] buffer, InetAddress host, int port, ConsoleManager consoleManager, Scanner scanner, Response response){
         try{
@@ -65,7 +66,89 @@ public class App {
             return null;
         }
     }
+    private static Request createRequestExecuteScriptCommand(ConsoleManager consoleManager, Scanner scanner, Response response, List<String> listExecuteFiles){
+        ExecuteScriptInteractiveCommand executeScriptInteractiveCommand = new ExecuteScriptInteractiveCommand();
+        return executeScriptInteractiveCommand.inputData(consoleManager, scanner, response, listExecuteFiles);
+    }
+    private static Response getResponseExecuteCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket, ConsoleManager consoleManager, Scanner scanner, InetAddress host, int port, Response response, byte[] buffer, List<String> listFiles) {
+        try{
+            String jsonInsert = new ParserJSON().serializeElement(createRequestExecuteScriptCommand(consoleManager, scanner, response, listFiles));
+            byte[] arrInsert = jsonInsert.getBytes(StandardCharsets.UTF_8);
+            int lenInsert = arrInsert.length;
+            datagramPacket = new DatagramPacket(arrInsert, lenInsert, host, port);
+            datagramSocket.send(datagramPacket);
 
+            return getResponse(datagramPacket, datagramSocket, buffer, host, port);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+
+    private static Integer runCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket,
+                                   InetAddress host, int port, ConsoleManager consoleManager, Scanner scanner, List<String> listExecuteFiles){
+        try {
+            byte[] buffer = new byte[65000];
+            Response response = getResponse(datagramPacket, datagramSocket, buffer, host, port);
+            if (response == null){
+                throw new IOException();
+            }
+            if (response.type == Response.Type.INSERT){
+                while (response.type == Response.Type.INSERT){
+                    response = getResponseInsertCommand(datagramPacket, datagramSocket, buffer, host, port, consoleManager, scanner, response);
+                    if (response == null){
+                        throw new IOException();
+                    }
+                }
+            }
+            if (response.type == Response.Type.INPUT){
+                while (response.type == Response.Type.INPUT){
+                    response = getResponseExecuteCommand(datagramPacket, datagramSocket, consoleManager, scanner, host, port, response, buffer, listExecuteFiles);
+                    if (response == null){
+                        throw new IOException();
+                    }
+                }
+
+            }
+            if (response.type == Response.Type.TEXT){
+                consoleManager.outputln(response.argument.toString());
+            }
+
+            if (response.type == Response.Type.LIST){
+                String fileName = response.argument.toString();
+                File executeFile = new File(String.format("scripts/%s.txt", fileName));
+                if (!listExecuteFiles.contains(fileName)){
+                    listExecuteFiles.add(fileName);
+                    ExecuteFileManager executeFileManager = new ExecuteFileManager(executeFile.getAbsolutePath(), consoleManager);
+                    List<String> scripts = executeFileManager.readFile();
+
+                    for (String script : scripts){
+                        datagramPacket = createDatagramPacket(script, host, port);
+
+                        try{
+                            datagramSocket.send(datagramPacket);
+                            if (runCommand(datagramPacket, datagramSocket, host, port, consoleManager, scanner, listExecuteFiles) == null){
+                                return null;
+                            }
+                        }
+                        catch (IOException e) {
+                            consoleManager.error("Ошибка во время отправке данных");
+                        }
+                    }
+                    listExecuteFiles.remove(fileName);
+
+                } else{
+                    consoleManager.warning(String.format("Файл %s уже был исполнен", fileName));
+                }
+            }
+
+
+        } catch (IOException e) {
+            consoleManager.error("Не удалось установить соединение с сервером");
+            return null;
+        }
+        return 1;
+    }
 
     public static void main(String[] args) {
 
@@ -73,6 +156,7 @@ public class App {
         Scanner scanner = new Scanner(System.in);
         DatagramSocket datagramSocket;
         DatagramPacket datagramPacket;
+        List<String> listExecuteFiles = new ArrayList<>();
         InetAddress host;
         int port;
 
@@ -98,26 +182,8 @@ public class App {
                 }
 
 //                datagramSocket.setSoTimeout(4000);
-                try {
-                    byte[] buffer = new byte[65000];
-                    Response response = getResponse(datagramPacket, datagramSocket, buffer, host, port);
-                    if (response == null){
-                        throw new IOException();
-                    }
-                    if (response.type == Response.Type.INSERT){
-                        while (response.type == Response.Type.INSERT){
-                            response = getResponseInsertCommand(datagramPacket, datagramSocket, buffer, host, port, consoleManager, scanner, response);
-                            if (response == null){
-                                throw new IOException();
-                            }
-                        }
-                    }
-                    if (response.type == Response.Type.TEXT){
-                        consoleManager.output(response.argument.toString());
-                    }
 
-                } catch (IOException e) {
-                    consoleManager.error("Не удалось установить соединение с сервером");
+                if (runCommand(datagramPacket, datagramSocket, host, port, consoleManager, scanner, listExecuteFiles) == null){
                     break;
                 }
 

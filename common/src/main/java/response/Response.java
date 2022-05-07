@@ -26,7 +26,8 @@ public class Response {
     public enum Type {
         LIST,
         TEXT,
-        INSERT
+        INSERT,
+        INPUT,
     }
 
     public enum Status {
