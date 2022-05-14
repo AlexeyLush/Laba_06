@@ -15,11 +15,7 @@ public class Response {
     public Response(Status status, Type type, Object argument) {
         this.status = status;
         this.type = type;
-        if (type == Type.TEXT){
-            this.argument = argument;
-        } else {
-            this.argument = new ParserJSON().serializeElement(argument);
-        }
+        this.argument = argument;
         message = null;
     }
 
@@ -28,6 +24,7 @@ public class Response {
         TEXT,
         INSERT,
         INPUT,
+        UPDATE
     }
 
     public enum Status {

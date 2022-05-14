@@ -1,6 +1,7 @@
 package laba;
 import commands.interactive.ExecuteScriptInteractiveCommand;
 import commands.interactive.InsertInteractiveCommand;
+import commands.interactive.UpdateInteractiveCommand;
 import dao.LabWorkDAO;
 import files.DataFileManager;
 import files.ExecuteFileManager;
@@ -83,7 +84,23 @@ public class App {
             return null;
         }
     }
+    private static Request createRequestUpdateCommand(ConsoleManager consoleManager, Scanner scanner, Response response){
+        UpdateInteractiveCommand updateInteractiveCommand = new UpdateInteractiveCommand();
+        return updateInteractiveCommand.inputData(consoleManager, scanner, response);
+    }
+    private static Response getResponseUpdateCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket, ConsoleManager consoleManager, Scanner scanner, InetAddress host, int port, Response response, byte[] buffer){
+        try{
+            String jsonInsert = new ParserJSON().serializeElement(createRequestUpdateCommand(consoleManager, scanner, response));
+            byte[] arrInsert = jsonInsert.getBytes(StandardCharsets.UTF_8);
+            int lenInsert = arrInsert.length;
+            datagramPacket = new DatagramPacket(arrInsert, lenInsert, host, port);
+            datagramSocket.send(datagramPacket);
 
+            return getResponse(datagramPacket, datagramSocket, buffer, host, port);
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     private static Integer runCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket,
                                    InetAddress host, int port, ConsoleManager consoleManager, Scanner scanner, List<String> listExecuteFiles){
@@ -113,7 +130,14 @@ public class App {
             if (response.type == Response.Type.TEXT){
                 consoleManager.outputln(response.argument.toString());
             }
-
+            if (response.type == Response.Type.UPDATE){
+                while (response.type == Response.Type.UPDATE) {
+                    response = getResponseUpdateCommand(datagramPacket, datagramSocket, consoleManager, scanner, host, port, response, buffer);
+                    if (response == null) {
+                        throw new IOException();
+                    }
+                }
+            }
             if (response.type == Response.Type.LIST){
                 String fileName = response.argument.toString();
                 File executeFile = new File(String.format("scripts/%s.txt", fileName));
