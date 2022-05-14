@@ -4,14 +4,11 @@ import commands.CommandAbstract;
 import commands.models.CommandFields;
 import models.Difficulty;
 import models.LabWork;
-import request.Request;
 import response.Response;
 import services.checkers.LabWorkChecker;
-import services.elementProcces.LabWorkProcess;
 import services.parsers.ParserJSON;
 import services.spliters.SplitCommandOnIdAndJSON;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
@@ -77,6 +74,8 @@ public class InsertCommand extends CommandAbstract {
                     response.type = Response.Type.TEXT;
                     response.argument = "Элемент добавлен";
                     labWork.setCreationDate(ZonedDateTime.now());
+                    commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
+                    commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
                 }
 
             }
@@ -90,6 +89,7 @@ public class InsertCommand extends CommandAbstract {
                 labWorkEntry = Map.entry(key, labWork);
                 response.status = Response.Status.OK;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                labWorkEntry.getValue().setCreationDate(ZonedDateTime.now());
                 commandFields.getLabWorkDAO().create(key, labWork);
                 commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
             }
@@ -117,34 +117,12 @@ public class InsertCommand extends CommandAbstract {
             } else {
 
                 labWork = new LabWork();
-                if (json != null) {
-
-                    labWork = new ParserJSON().deserializeLabWork(json);
-
-                    String keyCheck = checker.checkUserKey(key);
-                    String name = checker.checkNamePerson(labWork.getName());
-                    Long coordX = checker.checkX(labWork.getCoordinates().getX().toString());
-                    Integer coordY = checker.checkY(labWork.getCoordinates().getY().toString());
-                    Float minimalPoint = checker.checkMinimalPoint(labWork.getMinimalPoint().toString());
-                    String description = checker.checkDescription(labWork.getDescription());
-                    Difficulty difficulty = checker.checkDifficulty(labWork.getDifficulty().toString());
-                    String authorName = checker.checkNamePerson(labWork.getAuthor().getName());
-                    Long authorWeight = checker.checkWeightPerson(labWork.getAuthor().getWeight().toString());
-                    String authorPassportId = checker.checkPassportIdPerson(labWork.getAuthor().getPassportID());
-
-                }
-
                 labWorkEntry = Map.entry("", labWork);
                 response.message = "Вы не ввели ключ";
                 response.status = Response.Status.ERROR;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
         }
-
-        if (response.status == Response.Status.ERROR) {
-            return response;
-        }
-
 
         return response;
 

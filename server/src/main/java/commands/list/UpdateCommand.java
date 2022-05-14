@@ -35,67 +35,122 @@ public class UpdateCommand extends CommandAbstract {
 
         String[] splitCommand = new SplitCommandOnIdAndJSON().splitedCommand(commandFields.getCommand(), commandFields.getConsoleManager());
         String id = splitCommand[0];
-        String json = splitCommand[1];
 
-        LabWork labWork = new LabWork();
+        LabWork labWork;
 
         Response response = new Response();
         response.type = Response.Type.UPDATE;
+        response.status = Response.Status.OK;
+        LabWorkChecker checker = new LabWorkChecker();
 
-        if (id == null && labWork.getId() == 0) {
-            response.status = Response.Status.ERROR;
-            labWork.setId(0);
-            response.argument = new ParserJSON().serializeElement(labWork);
-        } else {
-            if (labWork.getId() > 0){
-                id = labWork.getId().toString();
-            }
-            labWork = new LabWork();
-            Integer idInt = Integer.parseInt(id);
+        Map.Entry<String, LabWork> labWorkEntry = Map.entry("", new LabWork());
+
+
+        if (id != null) {
+
+            boolean isCorrectId = false;
             for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                if (entry.getValue().getId().equals(idInt)) {
-                    labWork = entry.getValue();
+                if (entry.getValue().getId().equals(Integer.parseInt(id))) {
+                    labWorkEntry = Map.entry(entry.getKey(), entry.getValue());
+                    isCorrectId = true;
                     break;
                 }
             }
 
-            if (labWork.getId() == null){
+            if (isCorrectId) {
+                response.type = Response.Type.UPDATE;
+                response.status = Response.Status.OK;
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
+            } else {
                 response.status = Response.Status.ERROR;
                 response.type = Response.Type.UPDATE;
-                response.argument = "Вы не ввели id";
+                response.message = "Элемент с таким id не найден";
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
 
-            if (json != null) {
+        } else {
+            if (commandFields.getRequest().element != null) {
 
-                LabWork labWorkTemp = new ParserJSON().deserializeLabWork(json);
-                LabWorkChecker checker = new LabWorkChecker();
-
-                String name = checker.checkNamePerson(labWorkTemp.getName());
-                Long coordX = checker.checkX(labWorkTemp.getCoordinates().getX().toString());
-                Integer coordY = checker.checkY(labWorkTemp.getCoordinates().getY().toString());
-                Float minimalPoint = checker.checkMinimalPoint(labWorkTemp.getMinimalPoint().toString());
-                String description = checker.checkDescription(labWorkTemp.getDescription());
-                Difficulty difficulty = checker.checkDifficulty(labWorkTemp.getDifficulty().toString());
-                String authorName = checker.checkNamePerson(labWorkTemp.getAuthor().getName());
-                Long authorWeight = checker.checkWeightPerson(labWorkTemp.getAuthor().getWeight().toString());
-                String authorPassportId = checker.checkPassportIdPerson(labWorkTemp.getAuthor().getPassportID());
-
-                if (name == null || coordX == null || coordY == null
-                        || minimalPoint == null || description == null || difficulty == null
-                        || authorName == null || authorWeight == null || authorPassportId == null) {
-                    response.status = Response.Status.ERROR;
-                    response.argument = new ParserJSON().serializeElement(labWorkTemp);
-                } else {
-                    commandFields.getLabWorkDAO().update(idInt, labWorkTemp);
-                    response.status = Response.Status.OK;
-                    response.type = Response.Type.TEXT;
-                    response.argument = "Элемент обновлён";
+                String type = "";
+                try {
+                    id = commandFields.getRequest().element.toString();
+                    Integer.parseInt(id);
+                    type = "id";
+                } catch (NumberFormatException ignored){
+                    labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
+                    if (labWorkEntry != null){
+                        type = "lab_work_entry";
+                    }
                 }
+
+
+                if (type.equals("")){
+                    response.status = Response.Status.ERROR;
+                    response.type = Response.Type.UPDATE;
+                    response.message = "Вы не ввели id";
+                    response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                }
+
+                else if (type.equals("id")) {
+
+                    boolean isCorrectId = false;
+                    for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                        if (entry.getValue().getId().equals(Integer.parseInt(id))) {
+                            labWorkEntry = Map.entry(entry.getKey(), entry.getValue());
+                            isCorrectId = true;
+                            break;
+                        }
+                    }
+
+
+                    if (isCorrectId) {
+                        id = labWorkEntry.getValue().getId().toString();
+                        response.type = Response.Type.UPDATE;
+                        response.status = Response.Status.OK;
+                        response.argument = new ParserJSON().serializeElement(labWorkEntry);
+
+                    }
+                    else {
+                        response.status = Response.Status.ERROR;
+                        response.type = Response.Type.UPDATE;
+                        labWorkEntry.setValue(new LabWork());
+                        response.message = "Элемент с таким id не найден";
+                        response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                    }
+
+                }
+
+
+                else if (type.equals("lab_work_entry")) {
+                    boolean isCorrectId = false;
+                    for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                        if (entry.getValue().getId().equals(labWorkEntry.getValue().getId())) {
+                            isCorrectId = true;
+                            break;
+                        }
+                    }
+
+                    if (isCorrectId){
+                        response.status = Response.Status.OK;
+                        response.type = Response.Type.TEXT;
+                        response.argument = "Элемент обновлён";
+                        commandFields.getLabWorkDAO().update(labWorkEntry.getValue().getId(), labWorkEntry.getValue());
+                    }
+                    else {
+                        response.status = Response.Status.ERROR;
+                        response.type = Response.Type.UPDATE;
+                        labWorkEntry.setValue(new LabWork());
+                        response.message = "Элемент с таким id не найден";
+                        response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                    }
+                }
+
 
             } else {
                 response.status = Response.Status.ERROR;
                 response.type = Response.Type.UPDATE;
-                response.argument = labWork;
+                response.message = "Вы не ввели id";
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
         }
 
