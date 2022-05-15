@@ -24,7 +24,7 @@ public class ShowCommand extends CommandAbstract {
         String argument = "";
         try{
             for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                argument += String.format("Ключ: %s\n%s\n\n", entry.getKey(),entry.getValue().toString());
+                argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString());
             }
             return new Response(Response.Status.OK, Response.Type.TEXT, argument);
         }
