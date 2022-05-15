@@ -8,6 +8,7 @@ public class Response {
     public Type type;
     public Object argument;
     public String message;
+    public boolean isWait;
 
     public Response(){
 

@@ -21,7 +21,7 @@ public class InfoCommand extends CommandAbstract {
 
     @Override
     public Response execute(CommandFields commandFields) {
-        String date = new ParserJSON().getDataFromFile(commandFields.getDataFileManager().readFile());
+        String date = commandFields.getDataFileManager().readDataFromFile();
 
         String argument = ZonedDateTime.parse(date).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + "\n"
                 + commandFields.getLabWorkDAO().getAll().getClass() + "\n"

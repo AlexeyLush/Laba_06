@@ -30,6 +30,7 @@ import java.util.Scanner;
 
 public class Server {
     private static boolean isRun = true;
+    private static final int SIZE_BUFFER = 65_000;
 
     public static void exit() {
         isRun = false;
@@ -42,7 +43,6 @@ public class Server {
         }
         labWorkDAO.initialMap(dataFileManager.readMap(fileName, true, true));
     }
-
 
     private static DatagramChannel openChannel(SocketAddress address, ConsoleManager consoleManager) {
         try {
@@ -78,6 +78,7 @@ public class Server {
     private static void sendMessage(ByteBuffer buffer, SocketAddress address, DatagramChannel datagramChannel, ConsoleManager consoleManager) {
         try {
             consoleManager.warning("Отправка данных");
+            datagramChannel.socket().setSoTimeout(1000);
             datagramChannel.send(buffer, address);
             consoleManager.successfully("Данные отправлены");
         } catch (IOException e) {
@@ -100,7 +101,7 @@ public class Server {
 
         while (isRun) {
 
-            byte[] arr = new byte[65000];
+            byte[] arr = new byte[SIZE_BUFFER];
             ByteBuffer buffer;
             buffer = ByteBuffer.wrap(arr);
 
@@ -116,12 +117,61 @@ public class Server {
 
 
             Request request = getRequest(buffer);
-            Response response = commandsManager.inputCommand(request);
-            byte[] responseByte = createResponseByte(response);
 
-            buffer.flip();
-            buffer = ByteBuffer.wrap(responseByte);
-            sendMessage(buffer, address, datagramChannel, consoleManager);
+            Response response = commandsManager.inputCommand(request);
+
+            String responseJson = new ParserJSON().serializeElement(response);
+
+            int responseCountBytes = responseJson.getBytes(StandardCharsets.UTF_8).length;
+            if (responseCountBytes >= SIZE_BUFFER){
+
+
+                int startIndex = 0;
+                for (int i = 0; i < responseCountBytes / (SIZE_BUFFER - 4000); i++){
+
+                    Response packetResponse = new Response();
+                    packetResponse.status = Response.Status.OK;
+                    packetResponse.type = Response.Type.TEXT;
+                    packetResponse.isWait = true;
+
+                    int sizePacketResponse = new ParserJSON().serializeElement(new ParserJSON().serializeElement(packetResponse).getBytes(StandardCharsets.UTF_8)).length();
+
+                    int sizeResponseArgument = response.argument.toString().getBytes(StandardCharsets.UTF_8).length;
+                    int difference = sizeResponseArgument - (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                    if (difference <= 0){
+                        packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, sizeResponseArgument);
+                    }
+                    else {
+                        packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse);
+                        startIndex = (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                    }
+
+                    packetResponse.argument = new String((byte[]) packetResponse.argument, StandardCharsets.UTF_8);
+
+                    if (i + 1 >= responseCountBytes / (SIZE_BUFFER - 4000)){
+                        packetResponse.isWait = false;
+                    }
+                    byte[] responseByte = createResponseByte(packetResponse);
+                    buffer.flip();
+                    buffer = ByteBuffer.wrap(responseByte);
+                    long j = 0;
+
+                    while (j <= 99999999L){
+                        j++;
+                    }
+                    sendMessage(buffer, address, datagramChannel, consoleManager);
+                }
+            }
+
+            else {
+                byte[] responseByte = createResponseByte(response);
+
+                buffer.flip();
+                buffer = ByteBuffer.wrap(responseByte);
+
+                sendMessage(buffer, address, datagramChannel, consoleManager);
+
+            }
 
         }
 

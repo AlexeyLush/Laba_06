@@ -13,6 +13,8 @@ import services.model.ModelParse;
 import services.parsers.interfaces.ParserElement;
 import services.parsers.interfaces.ParserMap;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -147,6 +149,7 @@ public class ParserJSON implements ParserElement, ParserMap<String, LabWork> {
     }
 
     public String getDataFromFile(String file){
+
         String date = "";
         try {
             JsonNode root = mapper.readTree(file);

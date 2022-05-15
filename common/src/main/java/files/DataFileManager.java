@@ -16,6 +16,7 @@ import services.checkers.LabWorkChecker;
 import services.model.ModelParse;
 import services.parsers.ParserJSON;
 
+import javax.management.MBeanRegistration;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -331,23 +332,40 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
 
         String s = "";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(getFileName()))) {
+        if (isMainFile) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(getFileName()))) {
 
-            String temp = "";
+                String temp = "";
 
-            while ((temp = reader.readLine()) != null) {
-                s += temp;
+                while ((temp = reader.readLine()) != null) {
+                    s += temp;
+                }
+
+            } catch (IOException | NullPointerException e) {
+                consoleManager.error("Во время работы программы возникла проблема с файлом");
             }
+        } else {
+            try (BufferedReader reader = new BufferedReader(new FileReader(getTempFileName()))) {
 
-        } catch (IOException | NullPointerException e) {
-            consoleManager.error("Во время работы программы возникла проблема с файлом");
+                String temp = "";
+
+                while ((temp = reader.readLine()) != null) {
+                    s += temp;
+                }
+
+            } catch (IOException | NullPointerException e) {
+                consoleManager.error("Во время работы программы возникла проблема с файлом");
+            }
         }
+
+
 
         return s;
     }
 
     @Override
     public String readFile(String fileName) {
+
         String s = "";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -363,6 +381,49 @@ public class DataFileManager extends FileManager implements FileWorkMap<String, 
         }
 
         return s;
+    }
+
+    public String readDataFromFile(){
+
+        String date = "";
+
+        if (isMainFile) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(getFileName()))) {
+
+                String temp = "";
+                while ((temp = reader.readLine()) != null) {
+                    if (temp.contains("date")){
+                        break;
+                    }
+                }
+
+                String[] splitDate = temp.split(" ");
+                date = splitDate[splitDate.length - 1].replaceAll("\"", "").replaceAll(",", "");
+
+            } catch (IOException | NullPointerException e) {
+                consoleManager.error("Во время работы программы возникла проблема с файлом");
+            }
+        } else {
+            try (BufferedReader reader = new BufferedReader(new FileReader(getTempFileName()))) {
+
+                String temp = "";
+                while ((temp = reader.readLine()) != null) {
+                    if (temp.contains("date")){
+                        break;
+                    }
+                }
+
+                String[] splitDate = temp.split(" ");
+                date = splitDate[splitDate.length - 1].replaceAll("\"", "").replaceAll(",", "");
+
+            } catch (IOException | NullPointerException e) {
+                consoleManager.error("Во время работы программы возникла проблема с файлом");
+            }
+        }
+
+
+
+        return date;
     }
 
     @Override
