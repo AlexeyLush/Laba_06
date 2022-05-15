@@ -71,23 +71,6 @@ public final class CommandsManager {
         }
     }
 
-    public Response executeCommand(Request request, LabWorkDAO labWorkDAO, List<String> listExecutedFiles){
-        String commandName = request.commandName.split(" ")[0].toLowerCase();
-        try{
-            if (commandsList.containsKey(commandName)){
-                CommandFields commandFields = new CommandFields(scanner, commandName, labWorkDAO,
-                        this, dataFileManager, consoleManager, request);
-                commandFields.setListExecuteFiles(listExecutedFiles);
-                return commandsList.get(commandName).execute(commandFields);
-            } else {
-                return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
-            }
-        } catch (ArrayIndexOutOfBoundsException | NoSuchElementException e){
-            return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
-        }
-    }
-
-
     public Response inputCommand(Request request) {
         try{
             return executeCommand(request);

@@ -8,6 +8,7 @@ public class Response {
     public Type type;
     public Object argument;
     public String message;
+    public String command;
     public boolean isWait;
 
     public Response(){
@@ -21,10 +22,11 @@ public class Response {
     }
 
     public enum Type {
+        INPUT,
         LIST,
         TEXT,
         INSERT,
-        INPUT,
+        INPUT_SCRIPT,
         UPDATE
     }
 

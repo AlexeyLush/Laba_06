@@ -21,12 +21,6 @@ public class ExecuteScriptCommand extends CommandAbstract {
     }
 
 
-    public void executeScriptsInFile(List<String> scripts, List<String> listExecuteFiles, CommandFields commandFields) throws CloneNotSupportedException {
-        for (String command : scripts) {
-            CommandFields newCommandField = commandFields.clone(command, listExecuteFiles);
-            commandFields.getCommandsManager().executeCommand(commandFields.getRequest(), commandFields.getLabWorkDAO(), listExecuteFiles);
-        }
-    }
 
     @Override
     public Response execute(CommandFields commandFields) {
@@ -38,16 +32,14 @@ public class ExecuteScriptCommand extends CommandAbstract {
         Request request = commandFields.getRequest();
         if (commandSplited.length == 1) {
             response.status = Response.Status.ERROR;
-            response.type = Response.Type.INPUT;
+            response.type = Response.Type.INPUT_SCRIPT;
             if (request.element != null){
                 response.status = Response.Status.OK;
                 response.type = Response.Type.LIST;
                 response.argument = request.element;
             }
         } else {
-
             fileName = commandSplited[1];
-
             response.status = Response.Status.OK;
             response.type = Response.Type.LIST;
             response.argument = fileName;

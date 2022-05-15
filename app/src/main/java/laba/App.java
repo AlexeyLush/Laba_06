@@ -127,8 +127,8 @@ public class App {
                     }
                 }
             }
-            if (response.type == Response.Type.INPUT) {
-                while (response.type == Response.Type.INPUT) {
+            if (response.type == Response.Type.INPUT_SCRIPT) {
+                while (response.type == Response.Type.INPUT_SCRIPT) {
                     response = getResponseExecuteCommand(datagramPacket, datagramSocket, consoleManager, scanner, host, port, response, buffer, listExecuteFiles);
                     if (response == null) {
                         throw new IOException();

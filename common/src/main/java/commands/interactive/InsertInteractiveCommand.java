@@ -12,8 +12,8 @@ import services.parsers.ParserJSON;
 import java.util.Map;
 import java.util.Scanner;
 
-public class InsertInteractiveCommand implements InteractiveCommand {
-    @Override
+public class InsertInteractiveCommand {
+
     public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
         LabWorkProcess labWorkProcess = new LabWorkProcess(consoleManager, scanner);
         LabWorkChecker checker = new LabWorkChecker();
@@ -44,7 +44,7 @@ public class InsertInteractiveCommand implements InteractiveCommand {
         labWork = labWorkProcess.getProcessedElement(labWork, checker);
         entry = Map.entry(key, labWork);
 
-        return new Request("insert", new ParserJSON().serializeElement(entry));
+        return new Request(response.command, new ParserJSON().serializeElement(entry));
 
     }
 }

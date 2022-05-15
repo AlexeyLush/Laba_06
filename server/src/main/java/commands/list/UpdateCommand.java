@@ -39,6 +39,7 @@ public class UpdateCommand extends CommandAbstract {
         LabWork labWork;
 
         Response response = new Response();
+        response.command = "update";
         response.type = Response.Type.UPDATE;
         response.status = Response.Status.OK;
         LabWorkChecker checker = new LabWorkChecker();

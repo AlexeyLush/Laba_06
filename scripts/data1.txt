@@ -1,2 +1,1 @@
-execute_script data1
-execute_script data2
+insert {      "name" : null,      "coordinates" : {        "x" : 5,        "y" : 3      },      "creationDate" : "2022-05-04T15:11:02.779956300+03:00[Europe/Moscow]",      "minimalPoint" : 5.0,      "description" : "Это описание лабораторной работы №1",      "difficulty" : "NORMAL",      "author" : {        "name" : "Alexey",        "weight" : 26,        "passportID" : "336803"      }    }

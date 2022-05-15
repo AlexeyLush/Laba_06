@@ -37,6 +37,7 @@ public class InsertCommand extends CommandAbstract {
         LabWork labWork;
 
         Response response = new Response();
+        response.command = "insert";
         response.type = Response.Type.INSERT;
         response.status = Response.Status.OK;
         LabWorkChecker checker = new LabWorkChecker();
@@ -70,35 +71,31 @@ public class InsertCommand extends CommandAbstract {
                     response.status = Response.Status.ERROR;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
-                    response.status = Response.Status.OK;
-                    response.type = Response.Type.TEXT;
-                    response.argument = "Элемент добавлен";
-                    labWork.setCreationDate(ZonedDateTime.now());
-                    commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
-                    commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+
+                    if (commandFields.getLabWorkDAO().getAll().containsKey(keyCheck)) {
+                        labWorkEntry = Map.entry("", labWork);
+                        response.message = "Этот ключ уже занят";
+                        response.status = Response.Status.ERROR;
+                        response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                    }
+
+                    else {
+                        response.status = Response.Status.OK;
+                        response.type = Response.Type.TEXT;
+                        response.argument = "Элемент добавлен";
+                        labWork.setCreationDate(ZonedDateTime.now());
+                        commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
+                        commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+                    }
                 }
 
             }
 
-            if (commandFields.getLabWorkDAO().getAll().containsKey(key)) {
-                labWorkEntry = Map.entry("", labWork);
-                response.message = "Этот ключ уже занят";
-                response.status = Response.Status.ERROR;
-                response.argument = new ParserJSON().serializeElement(labWorkEntry);
-            } else {
-                labWorkEntry = Map.entry(key, labWork);
-                response.status = Response.Status.OK;
-                response.argument = new ParserJSON().serializeElement(labWorkEntry);
-                labWorkEntry.getValue().setCreationDate(ZonedDateTime.now());
-                commandFields.getLabWorkDAO().create(key, labWork);
-                commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
-            }
         } else {
 
             if (commandFields.getRequest().element != null) {
 
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
-                key = labWorkEntry.getKey();
 
                 if (commandFields.getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
                     labWorkEntry = Map.entry("", labWorkEntry.getValue());
@@ -117,6 +114,10 @@ public class InsertCommand extends CommandAbstract {
             } else {
 
                 labWork = new LabWork();
+
+                if (json != null) {
+                    labWork = new ParserJSON().deserializeLabWork(json);
+                }
                 labWorkEntry = Map.entry("", labWork);
                 response.message = "Вы не ввели ключ";
                 response.status = Response.Status.ERROR;
