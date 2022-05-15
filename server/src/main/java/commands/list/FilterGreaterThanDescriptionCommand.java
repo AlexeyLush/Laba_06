@@ -2,7 +2,10 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import models.LabWork;
 import response.Response;
+
+import java.util.Map;
 
 /**
  * Команда вывова элементов, значение поля description которых больше заданного
@@ -18,34 +21,37 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
     @Override
     public Response execute(CommandFields commandFields) {
 
-//        String[] commandSplited = commandFields.getCommand().split(" ");
-//        String description;
-//        if (commandSplited.length == 1) {
-//            commandFields.getConsoleManager().output("Введите описание: ");
-//            description = commandFields.getScanner().nextLine();
-//            while ((description.isEmpty() || description.replaceAll(" ", "").replaceAll("\t", "").length() == 0)) {
-//                commandFields.getConsoleManager().error("Описание не может быть пустым");
-//                commandFields.getConsoleManager().output("Введите описание: ");
-//                description = commandFields.getScanner().nextLine();
-//            }
-//        } else {
-//            commandSplited[0] = "";
-//            description = String.join(" ", commandSplited);
-//        }
-//
-//        try {
-//            if (commandFields.getLabWorkDAO().getAll().size() > 0){
-//                commandFields.getConsoleManager().warning("----------------------------------------------");
-//            }
-//            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-//                commandFields.getConsoleManager().outputln(String.format("Ключ: %s", entry.getKey()));
-//                commandFields.getConsoleManager().outputln(entry.getValue().toString());
-//                commandFields.getConsoleManager().warning("----------------------------------------------");
-//            }
-//            commandFields.getConsoleManager().successfully("Команда filter_greater_than успешно выполнена");
-//        } catch (NullPointerException nullPointerException) {
-//            commandFields.getConsoleManager().error("Ошибка!");
-//        }
-        return null;
+        Response response = new Response();
+        response.command = "filter_greater_than_description";
+        response.type = Response.Type.INPUT;
+        String[] commandSplited = commandFields.getCommand().split(" ");
+        String description = "";
+
+        if (commandSplited.length == 1) {
+            response.status = Response.Status.ERROR;
+            response.message = "Введите описание работы: ";
+        }
+        else {
+            description = commandSplited[1];
+        }
+
+        if (commandFields.getRequest().element != null){
+            description = commandFields.getRequest().element.toString();
+        }
+
+        if (!description.isEmpty()){
+
+            response.argument = "";
+            response.type = Response.Type.TEXT;
+            response.status = Response.Status.OK;
+            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                if (entry.getValue().getDescription().length() > description.length()){
+                    response.argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString());
+                }
+            }
+        }
+
+
+        return response;
     }
 }

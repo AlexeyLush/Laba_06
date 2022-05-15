@@ -1,6 +1,7 @@
 package laba;
 
 import commands.interactive.ExecuteScriptInteractiveCommand;
+import commands.interactive.InputInteractiveCommand;
 import commands.interactive.InsertInteractiveCommand;
 import commands.interactive.UpdateInteractiveCommand;
 import dao.LabWorkDAO;
@@ -111,6 +112,25 @@ public class App {
         }
     }
 
+    private static Request createRequestInputCommand(ConsoleManager consoleManager, Scanner scanner, Response response){
+        InputInteractiveCommand inputInteractiveCommand = new InputInteractiveCommand();
+        return inputInteractiveCommand.inputData(consoleManager, scanner, response);
+    }
+
+    private static Response getResponseInputCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket, ConsoleManager consoleManager, Scanner scanner, InetAddress host, int port, Response response, byte[] buffer) {
+        try {
+            String jsonInsert = new ParserJSON().serializeElement(createRequestInputCommand(consoleManager, scanner, response));
+            byte[] arrInsert = jsonInsert.getBytes(StandardCharsets.UTF_8);
+            int lenInsert = arrInsert.length;
+            datagramPacket = new DatagramPacket(arrInsert, lenInsert, host, port);
+            datagramSocket.send(datagramPacket);
+            return getResponse(datagramPacket, datagramSocket, buffer, host, port);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+
     private static Integer runCommand(DatagramPacket datagramPacket, DatagramSocket datagramSocket,
                                       InetAddress host, int port, ConsoleManager consoleManager, Scanner scanner, List<String> listExecuteFiles) {
         try {
@@ -136,11 +156,19 @@ public class App {
                 }
 
             }
+
+            if (response.type == Response.Type.INPUT) {
+                while (response.type == Response.Type.INPUT) {
+                    response = getResponseInputCommand(datagramPacket, datagramSocket, consoleManager, scanner, host, port, response, buffer);
+                    if (response == null) {
+                        throw new IOException();
+                    }
+                }
+            }
+
             if (response.type == Response.Type.TEXT) {
-
-
                 if (response.isWait) {
-                    try {
+                        try {
                         while (response.isWait) {
                             datagramSocket.setSoTimeout(1000);
                             consoleManager.outputln(response.argument.toString());
