@@ -2,7 +2,11 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import models.LabWork;
 import response.Response;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -18,16 +22,23 @@ public class SumOfMinimalPointCommand extends CommandAbstract {
 
     @Override
     public Response execute(CommandFields commandFields) {
-//        float sum = 0;
-//        try{
-//            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-//                sum += entry.getValue().getMinimalPoint();
-//            }
-//        } catch (NullPointerException nullPointerException){
-//            commandFields.getConsoleManager().error("Ошибка при исполнение команды");
-//        }
-//        commandFields.getConsoleManager().outputln(String.format("Сумма всех minimalPoint: %f", sum));
 
-        return null;
+        Response response = new Response();
+        response.status = Response.Status.OK;
+        response.type = Response.Type.TEXT;
+        response.command = "sum_of_minimal_point";
+
+        try{
+
+            int sum = 0;
+            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                sum += entry.getValue().getMinimalPoint();
+            }
+            response.argument = String.format("Сумма минимальных точек: %d\n", sum);
+        } catch (NullPointerException nullPointerException){
+            response.status = Response.Status.ERROR;
+            response.message = "Ошибка при выполнение команды!";
+        }
+        return response;
     }
 }
