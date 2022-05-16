@@ -90,6 +90,11 @@ public class InsertCommand extends CommandAbstract {
                 }
 
             }
+            else {
+                labWorkEntry = Map.entry(key, labWork);
+                response.status = Response.Status.ERROR;
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
+            }
 
         } else {
 

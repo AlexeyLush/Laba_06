@@ -17,8 +17,10 @@ public class InsertInteractiveCommand {
     public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
         LabWorkProcess labWorkProcess = new LabWorkProcess(consoleManager, scanner);
         LabWorkChecker checker = new LabWorkChecker();
+        Map.Entry<String, LabWork> entry;
 
-        Map.Entry<String, LabWork> entry = new ParserJSON().deserializeEntryLabWork(response.argument.toString());
+        entry = new ParserJSON().deserializeEntryLabWork(response.argument.toString());
+
 
         if (response.message != null){
             if (response.status == Response.Status.ERROR){
