@@ -221,8 +221,7 @@ public class App {
 
 
         } catch (IOException e) {
-            consoleManager.error("Не удалось установить соединение с сервером");
-            return null;
+            consoleManager.error("Не удалось установить соединение с сервером. Попробуйте позже");
         }
         return 1;
     }
@@ -259,10 +258,7 @@ public class App {
 
                 datagramSocket.setSoTimeout(4000);
 
-                if (runCommand(datagramPacket, datagramSocket, host, port, consoleManager, scanner, listExecuteFiles) == null) {
-                    break;
-                }
-
+                runCommand(datagramPacket, datagramSocket, host, port, consoleManager, scanner, listExecuteFiles);
 
             } catch (SocketException e) {
                 consoleManager.error("Ошибка при создания сокета");

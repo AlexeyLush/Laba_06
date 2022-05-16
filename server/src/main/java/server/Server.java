@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private static boolean isRun = true;
@@ -62,12 +63,7 @@ public class Server {
         }
         return null;
     }
-    private static void stop(){
-        long j = 0;
-        while (j <= 99999999L){
-            j++;
-        }
-    }
+
     private static Request getRequest(ByteBuffer buffer) {
 
         TrimMessage trimMessage = new TrimMessage();
@@ -107,75 +103,84 @@ public class Server {
 
         while (isRun) {
 
-            byte[] arr = new byte[SIZE_BUFFER];
-            ByteBuffer buffer;
-            buffer = ByteBuffer.wrap(arr);
+            try{
+                byte[] arr = new byte[SIZE_BUFFER];
+                ByteBuffer buffer;
+                buffer = ByteBuffer.wrap(arr);
 
 
-            if (datagramChannel == null) {
-                break;
-            }
-            address = receiveDatagram(datagramChannel, buffer, consoleManager);
+                if (datagramChannel == null) {
+                    break;
+                }
+                address = receiveDatagram(datagramChannel, buffer, consoleManager);
 
-            if (address == null) {
-                break;
-            }
-
-
-            Request request = getRequest(buffer);
-
-            Response response = commandsManager.inputCommand(request);
-
-            String responseJson = new ParserJSON().serializeElement(response);
-
-            int responseCountBytes = responseJson.getBytes(StandardCharsets.UTF_8).length;
-            if (responseCountBytes >= SIZE_BUFFER){
+                if (address == null) {
+                    break;
+                }
 
 
-                int startIndex = 0;
-                for (int i = 0; i < responseCountBytes / (SIZE_BUFFER - 4000); i++){
+                Request request = getRequest(buffer);
 
-                    Response packetResponse = new Response();
-                    packetResponse.status = Response.Status.OK;
-                    packetResponse.type = Response.Type.TEXT;
-                    packetResponse.isWait = true;
+                Response response = commandsManager.inputCommand(request);
 
-                    int sizePacketResponse = new ParserJSON().serializeElement(new ParserJSON().serializeElement(packetResponse).getBytes(StandardCharsets.UTF_8)).length();
+                String responseJson = new ParserJSON().serializeElement(response);
 
-                    int sizeResponseArgument = response.argument.toString().getBytes(StandardCharsets.UTF_8).length;
-                    int difference = sizeResponseArgument - (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
-                    if (difference <= 0){
-                        packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, sizeResponseArgument);
+                int responseCountBytes = responseJson.getBytes(StandardCharsets.UTF_8).length;
+                if (responseCountBytes >= SIZE_BUFFER){
+
+
+                    int startIndex = 0;
+                    for (int i = 0; i < responseCountBytes / (SIZE_BUFFER - 4000); i++){
+
+                        Response packetResponse = new Response();
+                        packetResponse.status = Response.Status.OK;
+                        packetResponse.type = Response.Type.TEXT;
+                        packetResponse.isWait = true;
+
+                        int sizePacketResponse = new ParserJSON().serializeElement(new ParserJSON().serializeElement(packetResponse).getBytes(StandardCharsets.UTF_8)).length();
+
+                        int sizeResponseArgument = response.argument.toString().getBytes(StandardCharsets.UTF_8).length;
+                        int difference = sizeResponseArgument - (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                        if (difference <= 0){
+                            packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, sizeResponseArgument);
+                        }
+                        else {
+                            packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse);
+                            startIndex = (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                        }
+
+                        packetResponse.argument = new String((byte[]) packetResponse.argument, StandardCharsets.UTF_8);
+
+                        if (i + 1 >= responseCountBytes / (SIZE_BUFFER - 4000)){
+                            packetResponse.isWait = false;
+                        }
+                        byte[] responseByte = createResponseByte(packetResponse);
+                        buffer.flip();
+                        buffer = ByteBuffer.wrap(responseByte);
+
+                        TimeUnit.MILLISECONDS.sleep(10);
+
+                        sendMessage(buffer, address, datagramChannel, consoleManager);
                     }
-                    else {
-                        packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse);
-                        startIndex = (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
-                    }
+                }
 
-                    packetResponse.argument = new String((byte[]) packetResponse.argument, StandardCharsets.UTF_8);
+                else {
+                    byte[] responseByte = createResponseByte(response);
 
-                    if (i + 1 >= responseCountBytes / (SIZE_BUFFER - 4000)){
-                        packetResponse.isWait = false;
-                    }
-                    byte[] responseByte = createResponseByte(packetResponse);
                     buffer.flip();
                     buffer = ByteBuffer.wrap(responseByte);
 
-                    stop();
-
                     sendMessage(buffer, address, datagramChannel, consoleManager);
+
                 }
+
+                dataFileManager.save(labWorkDAO.getAll());
             }
 
-            else {
-                byte[] responseByte = createResponseByte(response);
-
-                buffer.flip();
-                buffer = ByteBuffer.wrap(responseByte);
-
-                sendMessage(buffer, address, datagramChannel, consoleManager);
-
+            catch (Exception e){
+                consoleManager.error("Ошибка во время работы сервера");
             }
+
 
         }
 
