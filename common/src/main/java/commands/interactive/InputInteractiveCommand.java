@@ -10,11 +10,19 @@ public class InputInteractiveCommand {
 
     public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
 
+
+        if (response.status == Response.Status.ERROR){
+            if (response.argument != null){
+                consoleManager.error(response.argument.toString());
+            }
+        }
+
+
         if (response.message != null){
             consoleManager.output(response.message);
         }
 
-        
+
         String data = scanner.nextLine();
         Request request = new Request();
         request.commandName = response.command;
