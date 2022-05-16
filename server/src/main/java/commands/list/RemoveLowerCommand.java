@@ -2,7 +2,14 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
+import models.Difficulty;
+import models.LabWork;
 import response.Response;
+import services.checkers.LabWorkChecker;
+import services.parsers.ParserJSON;
+import services.spliters.SplitCommandOnIdAndJSON;
+
+import java.util.Map;
 
 /**
  * команда удаления из коллекции всех элементов, меньших, чем заданный
@@ -18,31 +25,92 @@ public class RemoveLowerCommand extends CommandAbstract {
 
     @Override
     public Response execute(CommandFields commandFields) {
+        String[] splitCommand = new SplitCommandOnIdAndJSON().splitedCommand(commandFields.getCommand(), commandFields.getConsoleManager());
 
-//        LabWorkProcess labWorkProcess = new LabWorkProcess(commandFields.getConsoleManager(), commandFields.getScanner());
-//        LabWorkChecker checker = new LabWorkChecker();
-//        LabWork labWork = new LabWork();
-//
-//        String[] splitCommand = new SplitCommandOnIdAndJSON().splitedCommand(commandFields.getCommand(), commandFields.getConsoleManager());
-//        String json = splitCommand[1];
-//
-//
-//        if (json != null) {
-//            labWork = new ParserJSON(commandFields.getConsoleManager()).deserializeElement(json);
-//            labWork.setCreationDate(ZonedDateTime.now());
-//            labWork = labWorkProcess.getProcessedElementWithError(labWork, checker);
-//        } else {
-//            labWork = labWorkProcess.getProcessedElement(labWork, checker);
-//        }
-//
-//        for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-//            if (labWork.getDescription().length() > entry.getValue().getDescription().length()) {
-//                commandFields.getLabWorkDAO().delete(entry.getKey());
-//            }
-//        }
-//        commandFields.getConsoleManager().successfully("Команда remove_lower успешно выполнена");
+        String json = splitCommand[1];
 
 
-        return null;
+        LabWork labWork;
+
+        Response response = new Response();
+        response.command = "remove_greater";
+        response.type = Response.Type.INSERT;
+        response.status = Response.Status.OK;
+        LabWorkChecker checker = new LabWorkChecker();
+
+        Map.Entry<String, LabWork> labWorkEntry;
+
+
+        if (json != null) {
+
+            labWork = new ParserJSON().deserializeLabWork(json);
+
+            if (labWork != null) {
+
+                String name = checker.checkNamePerson(labWork.getName());
+                Long coordX = checker.checkX(labWork.getCoordinates().getX().toString());
+                Integer coordY = checker.checkY(labWork.getCoordinates().getY().toString());
+                Float minimalPoint = checker.checkMinimalPoint(labWork.getMinimalPoint().toString());
+                String description = checker.checkDescription(labWork.getDescription());
+                Difficulty difficulty = checker.checkDifficulty(labWork.getDifficulty().toString());
+                String authorName = checker.checkNamePerson(labWork.getAuthor().getName());
+                Long authorWeight = checker.checkWeightPerson(labWork.getAuthor().getWeight().toString());
+                String authorPassportId = checker.checkPassportIdPerson(labWork.getAuthor().getPassportID());
+
+                labWorkEntry = Map.entry("111", labWork);
+
+                if (name == null || coordX == null || coordY == null
+                        || minimalPoint == null || description == null || difficulty == null
+                        || authorName == null || authorWeight == null || authorPassportId == null) {
+                    response.status = Response.Status.ERROR;
+                    response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                } else {
+
+                    for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                        if (labWork.getDescription().length() < entry.getValue().getDescription().length()) {
+                            commandFields.getLabWorkDAO().delete(entry.getKey());
+                        }
+                    }
+                    response.type = Response.Type.TEXT;
+                    response.status = Response.Status.OK;
+                    response.argument = "Элементы меньшие, чем заданный, удалены";
+                }
+            }
+
+            else {
+                labWork = new LabWork();
+                labWorkEntry = Map.entry("111", labWork);
+                response.type = Response.Type.INSERT;
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
+            }
+
+
+
+        } else {
+
+            if (commandFields.getRequest().element != null) {
+
+                labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
+
+                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                    if (labWorkEntry.getValue().getDescription().length() > entry.getValue().getDescription().length()) {
+                        commandFields.getLabWorkDAO().delete(entry.getKey());
+                    }
+                }
+
+                response.type = Response.Type.TEXT;
+                response.status = Response.Status.OK;
+                response.argument = "Элементы, превышающие заданный, удалены";
+
+            } else {
+
+                labWork = new LabWork();
+                labWorkEntry = Map.entry("111", labWork);
+                response.type = Response.Type.INSERT;
+                response.argument = new ParserJSON().serializeElement(labWorkEntry);
+            }
+        }
+
+        return response;
     }
 }
