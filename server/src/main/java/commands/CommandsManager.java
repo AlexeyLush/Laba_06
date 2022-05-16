@@ -33,7 +33,6 @@ public final class CommandsManager {
         addCommand(new HelpCommand());
         addCommand(new InfoCommand());
         addCommand(new ClearCommand());
-        addCommand(new SaveCommand());
         addCommand(new ExecuteScriptCommand());
         addCommand(new RemoveGreaterCommand());
         addCommand(new RemoveLowerCommand());

@@ -10,6 +10,7 @@ import services.parsers.ParserJSON;
 import services.spliters.SplitCommandOnIdAndJSON;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * команда удаления из коллекции всех элементов, меньших, чем заданный
@@ -67,13 +68,17 @@ public class RemoveLowerCommand extends CommandAbstract {
                 } else {
 
                     LabWork finalLabWork = labWork;
-                    commandFields
+                    commandFields.getLabWorkDAO().initialMap(commandFields
                             .getLabWorkDAO()
                             .getAll()
                             .entrySet()
                             .stream()
                             .filter(entry -> finalLabWork.getDescription().length() > entry.getValue().getDescription().length())
-                            .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                    commandFields
+                            .getLabWorkDAO()
+                            .getAll()
+                            .forEach((key, value) -> commandFields.getLabWorkDAO().delete(key));
                     response.type = Response.Type.TEXT;
                     response.status = Response.Status.OK;
                     response.argument = "Элементы меньшие, чем заданный, удалены";
@@ -96,13 +101,17 @@ public class RemoveLowerCommand extends CommandAbstract {
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
 
                 LabWork finalLabWork = labWorkEntry.getValue();
-                commandFields
+                commandFields.getLabWorkDAO().initialMap(commandFields
                         .getLabWorkDAO()
                         .getAll()
                         .entrySet()
                         .stream()
                         .filter(entry -> finalLabWork.getDescription().length() > entry.getValue().getDescription().length())
-                        .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                commandFields
+                        .getLabWorkDAO()
+                        .getAll()
+                        .forEach((key, value) -> commandFields.getLabWorkDAO().delete(key));
 
                 response.type = Response.Type.TEXT;
                 response.status = Response.Status.OK;

@@ -266,6 +266,9 @@ public class App {
             } catch (UnknownHostException e) {
                 consoleManager.error("Ошбика подключения к хосту");
                 break;
+            } catch (NoSuchElementException exception){
+                consoleManager.outputln("Выход из программы...");
+                break;
             }
         }
 

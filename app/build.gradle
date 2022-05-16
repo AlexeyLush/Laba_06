@@ -14,11 +14,11 @@ plugins {
     id 'application'
 }
 
+compileJava.options.encoding = 'UTF-8'
 
-tasks.withType(JavaCompile){
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
