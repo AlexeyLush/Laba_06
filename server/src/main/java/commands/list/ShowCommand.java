@@ -21,12 +21,20 @@ public class ShowCommand extends CommandAbstract {
     @Override
     public Response execute(CommandFields commandFields) {
 
-        String argument = "";
         try{
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString());
-            }
-            return new Response(Response.Status.OK, Response.Type.TEXT, argument);
+
+            Response response = new Response();
+            response.status = Response.Status.OK;
+            response.type = Response.Type.TEXT;
+            response.argument = "";
+
+            commandFields
+                    .getLabWorkDAO()
+                    .getAll()
+                    .entrySet()
+                    .forEach(entry -> response.argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString()));
+
+            return response;
         }
         catch (NullPointerException nullPointerException){
             return new Response(Response.Status.ERROR, Response.Type.TEXT, "Ошбика на сервере!");

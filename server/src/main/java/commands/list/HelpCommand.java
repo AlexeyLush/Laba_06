@@ -23,10 +23,18 @@ public class HelpCommand extends CommandAbstract {
 
     @Override
     public Response execute(CommandFields commandFields) {
-        String argument = "";
-        for (Map.Entry<String, CommandAbstract> entry : commandFields.getCommandsManager().getCommandsList().entrySet()) {
-            argument += String.format("%s%s",entry.getValue().getDescription(), System.lineSeparator());
-        }
-        return new Response(Response.Status.OK, Response.Type.TEXT, argument);
+
+        Response response = new Response();
+        response.status = Response.Status.OK;
+        response.type = Response.Type.TEXT;
+        response.argument = "";
+
+        commandFields
+                .getCommandsManager()
+                .getCommandsList()
+                .entrySet()
+                .forEach(entry -> response.argument += String.format("%s%s",entry.getValue().getDescription(), System.lineSeparator()));
+
+        return response;
     }
 }

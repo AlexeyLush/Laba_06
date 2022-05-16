@@ -69,11 +69,16 @@ public class RemoveGreaterCommand extends CommandAbstract {
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
 
-                    for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                        if (labWork.getDescription().length() < entry.getValue().getDescription().length()) {
-                            commandFields.getLabWorkDAO().delete(entry.getKey());
-                        }
-                    }
+
+                    LabWork finalLabWork = labWork;
+                    commandFields
+                            .getLabWorkDAO()
+                            .getAll()
+                            .entrySet()
+                            .stream()
+                            .filter(entry -> finalLabWork.getDescription().length() < entry.getValue().getDescription().length())
+                            .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
+
                     response.type = Response.Type.TEXT;
                     response.status = Response.Status.OK;
                     response.argument = "Элементы, превышающие заданный, удалены";
@@ -95,11 +100,14 @@ public class RemoveGreaterCommand extends CommandAbstract {
 
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
 
-                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                    if (labWorkEntry.getValue().getDescription().length() < entry.getValue().getDescription().length()) {
-                        commandFields.getLabWorkDAO().delete(entry.getKey());
-                    }
-                }
+                LabWork finalLabWork = labWorkEntry.getValue();
+                commandFields
+                        .getLabWorkDAO()
+                        .getAll()
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> finalLabWork.getDescription().length() < entry.getValue().getDescription().length())
+                        .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
 
                 response.type = Response.Type.TEXT;
                 response.status = Response.Status.OK;

@@ -44,11 +44,14 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
             response.argument = "";
             response.type = Response.Type.TEXT;
             response.status = Response.Status.OK;
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                if (entry.getValue().getDescription().length() > description.length()){
-                    response.argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString());
-                }
-            }
+            String finalDescription = description;
+            commandFields
+                    .getLabWorkDAO()
+                    .getAll()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().getDescription().length() > finalDescription.length())
+                    .forEachOrdered(entry -> response.argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString()));
         }
 
 

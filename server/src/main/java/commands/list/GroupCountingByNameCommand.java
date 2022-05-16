@@ -28,21 +28,27 @@ public class GroupCountingByNameCommand extends CommandAbstract {
         response.command = "group_counting_by_name";
         Map<Character, Integer> groupByName = new LinkedHashMap<>();
         try{
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                Character firstChar = entry.getValue().getName().toCharArray()[0];
-                if (!groupByName.containsKey(firstChar)){
-                    groupByName.put(firstChar, 0);
-                }
-                groupByName.put(firstChar, groupByName.get(firstChar) + 1);
 
-            }
+            commandFields
+                    .getLabWorkDAO()
+                    .getAll()
+                    .forEach((key, value) -> {
+                        Character firstChar = value.getName().toCharArray()[0];
+                        if (!groupByName.containsKey(firstChar)) {
+                            groupByName.put(firstChar, 0);
+                        }
+                        groupByName.put(firstChar, groupByName.get(firstChar) + 1);
+                    });
 
             response.argument = "";
-            for (Map.Entry<Character, Integer> entry : groupByName.entrySet()) {
-                response.argument += String.format("Кол-во названий, начинающихся с '%c': %d\n",entry.getKey(), entry.getValue());
-            }
+            groupByName
+                    .entrySet()
+                    .stream()
+                    .forEach(entry -> {
+                        response.argument += String.format("Кол-во названий, начинающихся с '%c': %d\n", entry.getKey(), entry.getValue());
+                    });
 
-            commandFields.getConsoleManager().successfully("Команда group_counting_by_name успешно выполнена");
+
         } catch (NullPointerException nullPointerException){
             response.status = Response.Status.ERROR;
             response.message = "Ошибка при выполнение команды!";

@@ -30,11 +30,16 @@ public class SumOfMinimalPointCommand extends CommandAbstract {
 
         try{
 
-            int sum = 0;
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                sum += entry.getValue().getMinimalPoint();
-            }
-            response.argument = String.format("Сумма минимальных точек: %d\n", sum);
+            double sum = 0;
+
+            sum = commandFields
+                    .getLabWorkDAO()
+                    .getAll()
+                    .values()
+                    .stream()
+                    .mapToDouble(LabWork::getMinimalPoint)
+                    .sum();
+            response.argument = String.format("Сумма минимальных точек: %f\n", sum);
         } catch (NullPointerException nullPointerException){
             response.status = Response.Status.ERROR;
             response.message = "Ошибка при выполнение команды!";

@@ -62,6 +62,12 @@ public class Server {
         }
         return null;
     }
+    private static void stop(){
+        long j = 0;
+        while (j <= 99999999L){
+            j++;
+        }
+    }
     private static Request getRequest(ByteBuffer buffer) {
 
         TrimMessage trimMessage = new TrimMessage();
@@ -154,11 +160,9 @@ public class Server {
                     byte[] responseByte = createResponseByte(packetResponse);
                     buffer.flip();
                     buffer = ByteBuffer.wrap(responseByte);
-                    long j = 0;
 
-                    while (j <= 99999999L){
-                        j++;
-                    }
+                    stop();
+
                     sendMessage(buffer, address, datagramChannel, consoleManager);
                 }
             }

@@ -33,7 +33,7 @@ public class RemoveLowerCommand extends CommandAbstract {
         LabWork labWork;
 
         Response response = new Response();
-        response.command = "remove_greater";
+        response.command = "remove_lower";
         response.type = Response.Type.INSERT;
         response.status = Response.Status.OK;
         LabWorkChecker checker = new LabWorkChecker();
@@ -66,11 +66,14 @@ public class RemoveLowerCommand extends CommandAbstract {
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
 
-                    for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                        if (labWork.getDescription().length() < entry.getValue().getDescription().length()) {
-                            commandFields.getLabWorkDAO().delete(entry.getKey());
-                        }
-                    }
+                    LabWork finalLabWork = labWork;
+                    commandFields
+                            .getLabWorkDAO()
+                            .getAll()
+                            .entrySet()
+                            .stream()
+                            .filter(entry -> finalLabWork.getDescription().length() > entry.getValue().getDescription().length())
+                            .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
                     response.type = Response.Type.TEXT;
                     response.status = Response.Status.OK;
                     response.argument = "Элементы меньшие, чем заданный, удалены";
@@ -92,11 +95,14 @@ public class RemoveLowerCommand extends CommandAbstract {
 
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
 
-                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                    if (labWorkEntry.getValue().getDescription().length() > entry.getValue().getDescription().length()) {
-                        commandFields.getLabWorkDAO().delete(entry.getKey());
-                    }
-                }
+                LabWork finalLabWork = labWorkEntry.getValue();
+                commandFields
+                        .getLabWorkDAO()
+                        .getAll()
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> finalLabWork.getDescription().length() > entry.getValue().getDescription().length())
+                        .forEach(entry -> commandFields.getLabWorkDAO().delete(entry.getKey()));
 
                 response.type = Response.Type.TEXT;
                 response.status = Response.Status.OK;

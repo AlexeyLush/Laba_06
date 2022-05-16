@@ -49,25 +49,34 @@ public class UpdateCommand extends CommandAbstract {
 
         if (id != null) {
 
-            boolean isCorrectId = false;
-            for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
-                if (entry.getValue().getId().equals(Integer.parseInt(id))) {
-                    labWorkEntry = Map.entry(entry.getKey(), entry.getValue());
-                    isCorrectId = true;
-                    break;
+            try {
+                boolean isCorrectId = false;
+                for (Map.Entry<String, LabWork> entry : commandFields.getLabWorkDAO().getAll().entrySet()) {
+                    if (entry.getValue().getId().equals(Integer.parseInt(id))) {
+                        labWorkEntry = Map.entry(entry.getKey(), entry.getValue());
+                        isCorrectId = true;
+                        break;
+                    }
                 }
-            }
 
-            if (isCorrectId) {
-                response.type = Response.Type.UPDATE;
-                response.status = Response.Status.OK;
-                response.argument = new ParserJSON().serializeElement(labWorkEntry);
-            } else {
+                if (isCorrectId) {
+                    response.type = Response.Type.UPDATE;
+                    response.status = Response.Status.OK;
+                    response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                } else {
+                    response.status = Response.Status.ERROR;
+                    response.type = Response.Type.UPDATE;
+                    response.message = "Элемент с таким id не найден";
+                    response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                }
+            } catch (NumberFormatException e){
                 response.status = Response.Status.ERROR;
                 response.type = Response.Type.UPDATE;
-                response.message = "Элемент с таким id не найден";
+                response.message = "Id должен быть числом";
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
+
+
 
         } else {
             if (commandFields.getRequest().element != null) {

@@ -257,7 +257,7 @@ public class App {
                     consoleManager.error("Ошибка во время отправке данных");
                 }
 
-//                datagramSocket.setSoTimeout(4000);
+                datagramSocket.setSoTimeout(4000);
 
                 if (runCommand(datagramPacket, datagramSocket, host, port, consoleManager, scanner, listExecuteFiles) == null) {
                     break;

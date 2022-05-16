@@ -72,13 +72,15 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
 
                     if (commandFields.getLabWorkDAO().getAll().containsKey(keyCheck)) {
 
+                        if (labWorkEntry.getValue().getDescription().length() < commandFields.getLabWorkDAO().get(labWorkEntry.getKey()).getDescription().length()) {
+                            commandFields.getLabWorkDAO().delete(labWorkEntry.getKey());
+                        }
+
                         response.status = Response.Status.OK;
                         response.type = Response.Type.TEXT;
                         response.argument = "Элемент изменён";
                         labWork.setCreationDate(ZonedDateTime.now());
-                        if (labWorkEntry.getValue().getDescription().length() < commandFields.getLabWorkDAO().get(labWorkEntry.getKey()).getDescription().length()) {
-                            commandFields.getLabWorkDAO().delete(labWorkEntry.getKey());
-                        }
+
                         commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
                     }
 
