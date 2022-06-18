@@ -5,11 +5,11 @@ import commands.models.CommandFields;
 import models.Difficulty;
 import models.LabWork;
 import response.Response;
+import service.token.TokenGenerator;
 import services.checkers.LabWorkChecker;
 import services.parsers.ParserJSON;
 import services.spliters.SplitCommandOnIdAndJSON;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -38,8 +38,8 @@ public class RemoveGreaterCommand extends CommandAbstract {
 
         Response response = new Response();
         response.command = "remove_greater";
-        response.type = Response.Type.INSERT;
-        response.status = Response.Status.OK;
+        response.contentType = Response.Type.INSERT;
+        response.statusCode = 200;
         LabWorkChecker checker = new LabWorkChecker();
 
         Map.Entry<String, LabWork> labWorkEntry;
@@ -66,34 +66,37 @@ public class RemoveGreaterCommand extends CommandAbstract {
                 if (name == null || coordX == null || coordY == null
                         || minimalPoint == null || description == null || difficulty == null
                         || authorName == null || authorWeight == null || authorPassportId == null) {
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
 
+                    String userName = TokenGenerator.decodeToken(commandFields.getRequest().authorization).userName;
 
                     LabWork finalLabWork = labWork;
-                    commandFields.getLabWorkDAO().initialMap(commandFields
-                            .getLabWorkDAO()
+                    commandFields.getDatabase().getLabWorkDAO().initialMap(commandFields
+                            .getDatabase().getLabWorkDAO()
                             .getAll()
                             .entrySet()
                             .stream()
+                            .filter(entry -> userName.equals(entry.getValue().getUserName()))
                             .filter(entry -> finalLabWork.getDescription().length() < entry.getValue().getDescription().length())
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
                     commandFields
-                            .getLabWorkDAO()
+                            .getDatabase().getLabWorkDAO()
                             .getAll()
-                            .forEach((key, value) -> commandFields.getLabWorkDAO().delete(key));
+                            .forEach((key, value) -> commandFields.getDatabase().getLabWorkDAO().delete(key));
 
-                    response.type = Response.Type.TEXT;
-                    response.status = Response.Status.OK;
+                    response.contentType = Response.Type.TEXT;
+                    response.statusCode = 200;
                     response.argument = "Элементы, превышающие заданный, удалены";
+                    commandFields.getDatabase().getLabWorkDAO().setLabWorksFromDatabase();
                 }
             }
 
             else {
                 labWork = new LabWork();
                 labWorkEntry = Map.entry("111", labWork);
-                response.type = Response.Type.INSERT;
+                response.contentType = Response.Type.INSERT;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
 
@@ -107,27 +110,27 @@ public class RemoveGreaterCommand extends CommandAbstract {
 
                 LabWork finalLabWork = labWorkEntry.getValue();
 
-                commandFields.getLabWorkDAO().initialMap(commandFields
-                        .getLabWorkDAO()
+                commandFields.getDatabase().getLabWorkDAO().initialMap(commandFields
+                        .getDatabase().getLabWorkDAO()
                         .getAll()
                         .entrySet()
                         .stream()
                         .filter(entry -> finalLabWork.getDescription().length() < entry.getValue().getDescription().length())
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
                 commandFields
-                        .getLabWorkDAO()
+                        .getDatabase().getLabWorkDAO()
                         .getAll()
-                        .forEach((key, value) -> commandFields.getLabWorkDAO().delete(key));
+                        .forEach((key, value) -> commandFields.getDatabase().getLabWorkDAO().delete(key));
 
-                response.type = Response.Type.TEXT;
-                response.status = Response.Status.OK;
+                response.contentType = Response.Type.TEXT;
+                response.statusCode = 200;
                 response.argument = "Элементы, превышающие заданный, удалены";
 
             } else {
 
                 labWork = new LabWork();
                 labWorkEntry = Map.entry("111", labWork);
-                response.type = Response.Type.INSERT;
+                response.contentType = Response.Type.INSERT;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
         }

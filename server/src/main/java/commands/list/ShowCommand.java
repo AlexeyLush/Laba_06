@@ -2,10 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
 import response.Response;
-
-import java.util.Map;
 
 /**
  * Команда вывода в стандарный поток всех элементов коллекции в строковом представлении
@@ -24,12 +21,12 @@ public class ShowCommand extends CommandAbstract {
         try{
 
             Response response = new Response();
-            response.status = Response.Status.OK;
-            response.type = Response.Type.TEXT;
+            response.statusCode = 200;
+            response.contentType = Response.Type.TEXT;
             response.argument = "";
 
             commandFields
-                    .getLabWorkDAO()
+                    .getDatabase().getLabWorkDAO()
                     .getAll()
                     .entrySet()
                     .forEach(entry -> response.argument += String.format("\nКлюч: %s\n%s", entry.getKey(),entry.getValue().toString()));
@@ -37,7 +34,7 @@ public class ShowCommand extends CommandAbstract {
             return response;
         }
         catch (NullPointerException nullPointerException){
-            return new Response(Response.Status.ERROR, Response.Type.TEXT, "Ошбика на сервере!");
+            return new Response(500, Response.Type.TEXT, "", "Ошбика на сервере!", "show");
         }
 
     }

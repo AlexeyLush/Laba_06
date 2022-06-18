@@ -2,10 +2,9 @@ package commands;
 
 import commands.list.*;
 import commands.models.CommandFields;
-import dao.LabWorkDAO;
-import files.DataFileManager;
+import dao.map.LabWorkDAO;
+import database.PostgresDatabase;
 import io.ConsoleManager;
-import models.LabWork;
 import request.Request;
 import response.Response;
 import server.Server;
@@ -20,19 +19,16 @@ public final class CommandsManager {
 
     private final Map<String, CommandAbstract> commandsList = new LinkedHashMap<String, CommandAbstract>();
     private Scanner scanner;
+    private PostgresDatabase postgresDatabase;
     private final ConsoleManager consoleManager;
-    private LabWorkDAO labWorkDAO;
-    private DataFileManager dataFileManager;
 
-    public CommandsManager(Scanner scanner, ConsoleManager consoleManager, LabWorkDAO labWorkDAO, DataFileManager dataFileManager){
+    public CommandsManager(Scanner scanner, ConsoleManager consoleManager, PostgresDatabase postgresDatabase){
         this.scanner = scanner;
         this.consoleManager = consoleManager;
-        this.labWorkDAO = labWorkDAO;
-        this.dataFileManager = dataFileManager;
+        this.postgresDatabase = postgresDatabase;
 
         addCommand(new HelpCommand());
         addCommand(new InfoCommand());
-        addCommand(new ClearCommand());
         addCommand(new ExecuteScriptCommand());
         addCommand(new RemoveGreaterCommand());
         addCommand(new RemoveLowerCommand());
@@ -55,18 +51,17 @@ public final class CommandsManager {
     }
 
     public Response executeCommand(Request request){
-        String commandName = request.commandName.split(" ")[0].toLowerCase();
+        String commandName = request.message.split(" ")[0].toLowerCase();
         try {
             if (commandsList.containsKey(commandName)) {
-                CommandFields commandFields = new CommandFields(scanner, request.commandName, labWorkDAO,
-                        this, dataFileManager, consoleManager, request);
+                CommandFields commandFields = new CommandFields(scanner, request.message,this, consoleManager, request, this.postgresDatabase);
                 return commandsList.get(commandName).execute(commandFields);
             }
             else{
-                return new Response(Response.Status.ERROR, Response.Type.TEXT, "Команда не найдена\n");
+                return new Response(404, Response.Type.TEXT, "", "Команда не найдена", "get");
             }
         } catch (ArrayIndexOutOfBoundsException | NoSuchElementException e){
-            return new Response(Response.Status.ERROR,Response.Type.TEXT, "Команда не найдена\n");
+            return new Response(404, Response.Type.TEXT, "", "Команда не найдена", "get");
         }
     }
 
@@ -77,7 +72,7 @@ public final class CommandsManager {
             consoleManager.warning("Принудительный выход...");
             Server.exit();
         }
-        return new Response(Response.Status.ERROR,Response.Type.TEXT, "Ошибка на сервере\n");
+        return new Response(500, Response.Type.TEXT, "", "Ошибка на сервере", "get");
     }
 
 }

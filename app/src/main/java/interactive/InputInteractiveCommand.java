@@ -1,4 +1,4 @@
-package commands.interactive;
+package interactive;
 
 import io.ConsoleManager;
 import request.Request;
@@ -8,10 +8,9 @@ import java.util.Scanner;
 
 public class InputInteractiveCommand {
 
-    public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
+    public Request inputData(String authorization, ConsoleManager consoleManager, Scanner scanner, Response response) {
 
-
-        if (response.status == Response.Status.ERROR){
+        if (response.statusCode == 400){
             if (response.argument != null){
                 consoleManager.error(response.argument.toString());
             }
@@ -22,11 +21,11 @@ public class InputInteractiveCommand {
             consoleManager.output(response.message);
         }
 
-
         String data = scanner.nextLine();
         Request request = new Request();
-        request.commandName = response.command;
+        request.message = response.command;
         request.element = data;
+        request.authorization = authorization;
         return request;
     }
 

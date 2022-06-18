@@ -2,7 +2,6 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
 import response.Response;
 
 import java.util.LinkedHashMap;
@@ -23,14 +22,14 @@ public class GroupCountingByNameCommand extends CommandAbstract {
     public Response execute(CommandFields commandFields) {
 
         Response response = new Response();
-        response.status = Response.Status.OK;
-        response.type = Response.Type.TEXT;
+        response.statusCode = 200;
+        response.contentType = Response.Type.TEXT;
         response.command = "group_counting_by_name";
         Map<Character, Integer> groupByName = new LinkedHashMap<>();
         try{
 
             commandFields
-                    .getLabWorkDAO()
+                    .getDatabase().getLabWorkDAO()
                     .getAll()
                     .forEach((key, value) -> {
                         Character firstChar = value.getName().toCharArray()[0];
@@ -50,7 +49,7 @@ public class GroupCountingByNameCommand extends CommandAbstract {
 
 
         } catch (NullPointerException nullPointerException){
-            response.status = Response.Status.ERROR;
+            response.statusCode = 500;
             response.message = "Ошибка при выполнение команды!";
         }
         return response;

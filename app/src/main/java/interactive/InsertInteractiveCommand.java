@@ -1,6 +1,5 @@
-package commands.interactive;
+package interactive;
 
-import commands.interactive.interfaces.InteractiveCommand;
 import io.ConsoleManager;
 import models.LabWork;
 import request.Request;
@@ -14,7 +13,7 @@ import java.util.Scanner;
 
 public class InsertInteractiveCommand {
 
-    public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
+    public Request inputData(String authorization, ConsoleManager consoleManager, Scanner scanner, Response response) {
         LabWorkProcess labWorkProcess = new LabWorkProcess(consoleManager, scanner);
         LabWorkChecker checker = new LabWorkChecker();
         Map.Entry<String, LabWork> entry;
@@ -23,9 +22,9 @@ public class InsertInteractiveCommand {
 
 
         if (response.message != null){
-            if (response.status == Response.Status.ERROR){
+            if (response.statusCode == 400){
                 consoleManager.error(response.message);
-            } else if (response.status == Response.Status.OK){
+            } else if (response.statusCode == 200){
                 consoleManager.successfully(response.message);
             }
         }
@@ -46,7 +45,9 @@ public class InsertInteractiveCommand {
         labWork = labWorkProcess.getProcessedElement(labWork, checker);
         entry = Map.entry(key, labWork);
 
-        return new Request(response.command, new ParserJSON().serializeElement(entry));
+        String json = new ParserJSON().serializeElement(entry);
+        Request request = new Request(authorization,"POST", "localhost", "command", json.length(), response.command, json);
+        return request;
 
     }
 }

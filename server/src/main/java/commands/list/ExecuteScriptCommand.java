@@ -2,12 +2,8 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import files.ExecuteFileManager;
 import request.Request;
 import response.Response;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Команда считывания и исполнения скрипта из указанного файла
@@ -27,21 +23,21 @@ public class ExecuteScriptCommand extends CommandAbstract {
 
         Response response = new Response();
 
-        String[] commandSplited = commandFields.getRequest().commandName.split(" ");
+        String[] commandSplited = commandFields.getRequest().message.toString().split(" ");
         String fileName = "";
         Request request = commandFields.getRequest();
         if (commandSplited.length == 1) {
-            response.status = Response.Status.ERROR;
-            response.type = Response.Type.INPUT_SCRIPT;
+            response.statusCode = 400;
+            response.contentType = Response.Type.INPUT_SCRIPT;
             if (request.element != null){
-                response.status = Response.Status.OK;
-                response.type = Response.Type.LIST;
+                response.statusCode = 200;
+                response.contentType = Response.Type.LIST;
                 response.argument = request.element;
             }
         } else {
             fileName = commandSplited[1];
-            response.status = Response.Status.OK;
-            response.type = Response.Type.LIST;
+            response.statusCode = 200;
+            response.contentType = Response.Type.LIST;
             response.argument = fileName;
         }
 

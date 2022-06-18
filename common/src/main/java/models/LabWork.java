@@ -19,6 +19,7 @@ public class LabWork implements Comparable<LabWork>{
     private String description; //Строка не может быть пустой, Поле не может быть null
     private Difficulty difficulty; //Поле может быть null
     private Person author; //Поле может быть null
+    private String userName;
 
     public LabWork(){
         this.creationDate = ZonedDateTime.now();
@@ -40,6 +41,14 @@ public class LabWork implements Comparable<LabWork>{
 
     public void setId(int id){
         this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public Integer getId() {
@@ -117,7 +126,8 @@ public class LabWork implements Comparable<LabWork>{
                 + "Сложность: " + difficulty + System.getProperty("line.separator")
                 + "Имя автора: " + author.getName() + System.getProperty("line.separator")
                 + "Вес: " + author.getWeight() + System.getProperty("line.separator")
-                + "ID паспорта: " + author.getPassportID() + System.getProperty("line.separator");
+                + "ID паспорта: " + author.getPassportID() + System.getProperty("line.separator")
+                + "Добавил пользователь: " + userName + System.getProperty("line.separator");
     }
 
     @Override

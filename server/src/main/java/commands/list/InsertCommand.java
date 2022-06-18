@@ -38,8 +38,8 @@ public class InsertCommand extends CommandAbstract {
 
         Response response = new Response();
         response.command = "insert";
-        response.type = Response.Type.INSERT;
-        response.status = Response.Status.OK;
+        response.contentType = Response.Type.INSERT;
+        response.statusCode = 200;
         LabWorkChecker checker = new LabWorkChecker();
 
         Map.Entry<String, LabWork> labWorkEntry;
@@ -68,31 +68,39 @@ public class InsertCommand extends CommandAbstract {
                 if (keyCheck == null || name == null || coordX == null || coordY == null
                         || minimalPoint == null || description == null || difficulty == null
                         || authorName == null || authorWeight == null || authorPassportId == null) {
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
 
-                    if (commandFields.getLabWorkDAO().getAll().containsKey(keyCheck)) {
+                    if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(keyCheck)) {
                         labWorkEntry = Map.entry("", labWork);
                         response.message = "Этот ключ уже занят";
-                        response.status = Response.Status.ERROR;
+                        response.statusCode = 400;
                         response.argument = new ParserJSON().serializeElement(labWorkEntry);
                     }
 
                     else {
-                        response.status = Response.Status.OK;
-                        response.type = Response.Type.TEXT;
-                        response.argument = "Элемент добавлен";
-                        labWork.setCreationDate(ZonedDateTime.now());
-                        commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
-                        commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+                        if (commandFields.getDatabase().getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue(), commandFields.getRequest().authorization) == 0){
+                            labWork.setCreationDate(ZonedDateTime.now());
+                            response.statusCode = 400;
+                            response.contentType = Response.Type.TEXT;
+                            response.message = "Во время добавления данных произошла ошибка";
+                        }
+                        else {
+                            response.statusCode = 201;
+                            response.contentType = Response.Type.TEXT;
+                            response.message = "Элемент добавлен";
+                            commandFields.getDatabase().getLabWorkDAO().setLabWorksFromDatabase();
+                            commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+                        }
+
                     }
                 }
 
             }
             else {
                 labWorkEntry = Map.entry(key, labWork);
-                response.status = Response.Status.ERROR;
+                response.statusCode = 400;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
 
@@ -102,18 +110,61 @@ public class InsertCommand extends CommandAbstract {
 
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
 
-                if (commandFields.getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
+                labWork = labWorkEntry.getValue();
+                key = labWorkEntry.getKey();
+                if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
                     labWorkEntry = Map.entry("", labWorkEntry.getValue());
                     response.message = "Этот ключ уже занят";
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
-                    response.status = Response.Status.OK;
-                    response.type = Response.Type.TEXT;
-                    response.argument = "Элемент добавлен";
-                    labWorkEntry.getValue().setCreationDate(ZonedDateTime.now());
-                    commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
-                    commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+
+                    String keyCheck = checker.checkUserKey(key);
+                    String name = checker.checkNamePerson(labWork.getName());
+                    Long coordX = checker.checkX(labWork.getCoordinates().getX().toString());
+                    Integer coordY = checker.checkY(labWork.getCoordinates().getY().toString());
+                    Float minimalPoint = checker.checkMinimalPoint(labWork.getMinimalPoint().toString());
+                    String description = checker.checkDescription(labWork.getDescription());
+                    Difficulty difficulty = checker.checkDifficulty(labWork.getDifficulty().toString());
+                    String authorName = checker.checkNamePerson(labWork.getAuthor().getName());
+                    Long authorWeight = checker.checkWeightPerson(labWork.getAuthor().getWeight().toString());
+                    String authorPassportId = checker.checkPassportIdPerson(labWork.getAuthor().getPassportID());
+
+                    labWorkEntry = Map.entry(key, labWork);
+
+                    if (keyCheck == null || name == null || coordX == null || coordY == null
+                            || minimalPoint == null || description == null || difficulty == null
+                            || authorName == null || authorWeight == null || authorPassportId == null) {
+                        response.statusCode = 400;
+                        response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                    } else {
+
+                        if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(keyCheck)) {
+                            labWorkEntry = Map.entry("", labWork);
+                            response.message = "Этот ключ уже занят";
+                            response.statusCode = 400;
+                            response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                        }
+
+                        else {
+
+
+                            if (commandFields.getDatabase().getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue(), commandFields.getRequest().authorization) == 0){
+                                labWork.setCreationDate(ZonedDateTime.now());
+                                response.statusCode = 400;
+                                response.contentType = Response.Type.TEXT;
+                                response.message = "Во время добавления данных произошла ошибка";
+                            }
+                            else {
+                                response.statusCode = 201;
+                                response.contentType = Response.Type.TEXT;
+                                response.message = "Элемент добавлен";
+                                commandFields.getDatabase().getLabWorkDAO().setLabWorksFromDatabase();
+                                commandFields.getConsoleManager().successfully("Команда insert успешно выполнена");
+                            }
+
+                        }
+                    }
                 }
 
             } else {
@@ -125,7 +176,7 @@ public class InsertCommand extends CommandAbstract {
                 }
                 labWorkEntry = Map.entry("", labWork);
                 response.message = "Вы не ввели ключ";
-                response.status = Response.Status.ERROR;
+                response.statusCode = 400;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
         }

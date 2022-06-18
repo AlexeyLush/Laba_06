@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import io.ConsoleManager;
 import models.LabWork;
+import models.User;
 import request.Request;
 import response.Response;
 import services.model.ModelParse;
@@ -63,6 +64,15 @@ public class ParserJSON implements ParserElement, ParserMap<String, LabWork> {
     public LabWork deserializeLabWork(String json){
         try {
             TypeReference<LabWork> typeRef = new TypeReference<>() {};
+            return mapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public User deserializeUser(String json){
+        try {
+            TypeReference<User> typeRef = new TypeReference<>() {};
             return mapper.readValue(json, typeRef);
         } catch (IOException e) {
             return null;

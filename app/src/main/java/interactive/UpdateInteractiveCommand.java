@@ -1,4 +1,4 @@
-package commands.interactive;
+package interactive;
 
 import io.ConsoleManager;
 import models.Coordinates;
@@ -34,6 +34,7 @@ public class UpdateInteractiveCommand {
         consoleManager.warning("--------------------------------------------------------");
         outputFiled(String.format("ID: %s", labWork.getId()), consoleManager, false);
         outputFiled(String.format("Дата создания: %s", labWork.getCreationDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))), consoleManager, false);
+        outputFiled(String.format("Добавил пользователь: %s", labWork.getUserName()), consoleManager, false);
         outputFiled(String.format("Название работы: %s", labWork.getName()), consoleManager, true);
         outputFiled(String.format("Координата X: %d", labWork.getCoordinates().getX()), consoleManager, true);
         outputFiled(String.format("Координата Y: %d", labWork.getCoordinates().getY()), consoleManager, true);
@@ -124,7 +125,7 @@ public class UpdateInteractiveCommand {
         return isUpdate;
     }
 
-    public Request inputData(ConsoleManager consoleManager, Scanner scanner, Response response) {
+    public Request inputData(String authorization,ConsoleManager consoleManager, Scanner scanner, Response response) {
 
         LabWorkChecker checker = new LabWorkChecker();
 
@@ -146,11 +147,14 @@ public class UpdateInteractiveCommand {
             }
             labWork.setId(Integer.parseInt(id));
             entry.setValue(labWork);
-            return new Request("update", id);
+
+
+            Request request = new Request(authorization, "POST", "localhost", "command", id.length(), "update", id);
+            return request;
         }
 
         try {
-            if (response.status == Response.Status.OK) {
+            if (response.statusCode == 200) {
                 showLabWorkFields(entry.getValue(), consoleManager);
                 consoleManager.output("Выберете пункт, который хотите изменить или введите 0, чтобы завершить обновление: ");
                 while (choosePunct(consoleManager, checker, scanner, entry.getValue())) {
@@ -166,7 +170,10 @@ public class UpdateInteractiveCommand {
             consoleManager.error("Введите число");
         }
 
-        return new Request("update", new ParserJSON().serializeElement(entry));
+
+        String json = new ParserJSON().serializeElement(entry);
+        Request request = new Request(authorization, "POST", "localhost", "command", json.length(), response.command, json);
+        return request;
 
     }
 }

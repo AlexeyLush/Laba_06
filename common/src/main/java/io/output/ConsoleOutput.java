@@ -7,7 +7,7 @@ import io.enums.ColorConsole;
  */
 
 public interface ConsoleOutput{
-    void output(String message);
-    void outputln(String message);
-    void outputWithColor(String message, ColorConsole color);
+    void output(Object message);
+    void outputln(Object message);
+    void outputWithColor(Object message, ColorConsole color);
 }

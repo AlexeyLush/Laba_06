@@ -21,12 +21,9 @@ public class InfoCommand extends CommandAbstract {
 
     @Override
     public Response execute(CommandFields commandFields) {
-        String date = commandFields.getDataFileManager().readDataFromFile();
 
-        String argument = ZonedDateTime.parse(date).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + "\n"
-                + commandFields.getLabWorkDAO().getAll().getClass() + "\n"
-                + commandFields.getLabWorkDAO().getAll().size() + "\n";
-        Response response = new Response(Response.Status.OK, Response.Type.TEXT, argument);
-        return response;
+        String argument = commandFields.getDatabase().getLabWorkDAO().getAll().getClass() + "\n"
+                + commandFields.getDatabase().getLabWorkDAO().getAll().size() + "\n";
+        return new Response(200, Response.Type.TEXT, argument, "", "info");
     }
 }

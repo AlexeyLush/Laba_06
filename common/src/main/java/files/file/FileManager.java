@@ -11,9 +11,11 @@ public abstract class FileManager {
     public void setFileName(String fileName){
         this.fileName = fileName;
     }
+
     public String getFileName(){
         return this.fileName;
     }
+
     public FileManager(String fileName){
         this.fileName = fileName;
     }

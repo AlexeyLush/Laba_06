@@ -1,20 +1,17 @@
 package services.checkers;
 
-import dao.LabWorkDAO;
-import io.ConsoleManager;
 import models.Coordinates;
 import models.Difficulty;
 
 import java.time.DateTimeException;
 import java.time.ZonedDateTime;
-import java.util.NoSuchElementException;
 
 public class LabWorkChecker extends Checker {
 
     public String checkUserKey(String key) {
         if (key == null) {
             return null;
-        } else if (key.isEmpty() || key.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || key.contains(" ") || key.contains("\t")) {
+        } else if (key.isEmpty() || key.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || key.contains(" ") || key.contains("\t") || key.length() > 255) {
             return null;
         } else {
             return key;
@@ -24,7 +21,7 @@ public class LabWorkChecker extends Checker {
         Integer returnId = null;
 
         try{
-            if (id == null || id.isEmpty() || id.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
+            if (id == null || id.isEmpty() || id.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || id.length() > 255){
                 return null;
             }
             returnId = Integer.parseInt(id);
@@ -50,7 +47,7 @@ public class LabWorkChecker extends Checker {
 
         String returnName = null;
         returnName = name;
-        if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
+        if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || name.length() > 255){
             return null;
         }
         return returnName;
@@ -84,7 +81,7 @@ public class LabWorkChecker extends Checker {
                 return null;
             }
             returnMinimalPoint = Float.parseFloat(minimalPoint.replace(",", "."));
-            if (returnMinimalPoint <= 0){
+            if (returnMinimalPoint <= 0 || returnMinimalPoint.isInfinite()){
                 return null;
             }
         }catch (NumberFormatException numberFormatException){
@@ -96,7 +93,7 @@ public class LabWorkChecker extends Checker {
         String returnDescription;
 
             returnDescription = description;
-            if (description == null || description.isEmpty() || description.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
+            if (description == null || description.isEmpty() || description.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || description.length() > 255){
                 return null;
             }
 
@@ -113,10 +110,10 @@ public class LabWorkChecker extends Checker {
     }
     public String checkNamePerson(String name){
         String returnName;
-            returnName = name;
-            if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
-                return null;
-            }
+        returnName = name;
+        if (name == null || name.isEmpty() || name.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || name.length() > 255){
+            return null;
+        }
         return returnName;
     }
     public Long checkWeightPerson(String weight){
@@ -138,7 +135,7 @@ public class LabWorkChecker extends Checker {
     public String checkPassportIdPerson(String passport){
         String returnPassportId = null;
         returnPassportId = passport;
-        if (returnPassportId == null || returnPassportId.isEmpty() || returnPassportId.replaceAll(" ", "").replaceAll("\t", "").length() == 0){
+        if (returnPassportId == null || returnPassportId.isEmpty() || returnPassportId.replaceAll(" ", "").replaceAll("\t", "").length() == 0 || returnPassportId.length() > 255){
             return null;
         }
         return returnPassportId;

@@ -5,6 +5,7 @@ import commands.models.CommandFields;
 import models.Difficulty;
 import models.LabWork;
 import response.Response;
+import service.token.TokenGenerator;
 import services.checkers.LabWorkChecker;
 import services.parsers.ParserJSON;
 import services.spliters.SplitCommandOnIdAndJSON;
@@ -36,8 +37,8 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
 
         Response response = new Response();
         response.command = "replace_if_lower";
-        response.type = Response.Type.INSERT;
-        response.status = Response.Status.OK;
+        response.contentType = Response.Type.INSERT;
+        response.statusCode = 200;
         LabWorkChecker checker = new LabWorkChecker();
 
         Map.Entry<String, LabWork> labWorkEntry;
@@ -49,7 +50,6 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
             if (json != null) {
 
                 labWork = new ParserJSON().deserializeLabWork(json);
-
                 String keyCheck = checker.checkUserKey(key);
                 String name = checker.checkNamePerson(labWork.getName());
                 Long coordX = checker.checkX(labWork.getCoordinates().getX().toString());
@@ -66,28 +66,43 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
                 if (keyCheck == null || name == null || coordX == null || coordY == null
                         || minimalPoint == null || description == null || difficulty == null
                         || authorName == null || authorWeight == null || authorPassportId == null) {
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 } else {
 
-                    if (commandFields.getLabWorkDAO().getAll().containsKey(keyCheck)) {
+                    if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(keyCheck)) {
+                        String userName = TokenGenerator.decodeToken(commandFields.getRequest().authorization).userName;
+                        LabWork labWorkFromDb = commandFields.getDatabase().getLabWorkDAO().get(keyCheck);
+                        if (labWorkFromDb.getUserName().equals(userName)){
+                            if (labWorkEntry.getValue().getDescription().length() < commandFields.getDatabase().getLabWorkDAO().get(labWorkEntry.getKey()).getDescription().length()) {
+                                commandFields.getDatabase().getLabWorkDAO().update(labWorkFromDb.getId(), labWorkEntry.getValue(), commandFields.getRequest().authorization);
+                                response.statusCode = 200;
+                                response.contentType = Response.Type.TEXT;
+                                response.argument = "Элемент изменён";
+                                labWork.setCreationDate(ZonedDateTime.now());
+                            }
+                            else {
+                                response.statusCode = 200;
+                                response.contentType = Response.Type.TEXT;
+                                response.argument = "Элементу не требуется изменений";
+                                labWork.setCreationDate(ZonedDateTime.now());
+                            }
 
-                        if (labWorkEntry.getValue().getDescription().length() < commandFields.getLabWorkDAO().get(labWorkEntry.getKey()).getDescription().length()) {
-                            commandFields.getLabWorkDAO().delete(labWorkEntry.getKey());
                         }
 
-                        response.status = Response.Status.OK;
-                        response.type = Response.Type.TEXT;
-                        response.argument = "Элемент изменён";
-                        labWork.setCreationDate(ZonedDateTime.now());
+                        else {
+                            labWorkEntry = Map.entry("", labWork);
+                            response.message = "Вы не можете заменить элемент, который вы не создавали";
+                            response.statusCode = 400;
+                            response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                        }
 
-                        commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
                     }
 
                     else {
                         labWorkEntry = Map.entry("", labWork);
                         response.message = "Элемент с таким ключом не найден";
-                        response.status = Response.Status.ERROR;
+                        response.statusCode = 400;
                         response.argument = new ParserJSON().serializeElement(labWorkEntry);
                     }
                 }
@@ -95,13 +110,13 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
             }
             else {
                 labWorkEntry = Map.entry(key, labWork);
-                if (commandFields.getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
-                    response.status = Response.Status.ERROR;
+                if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 }
                 else {
                     response.message = "Элемент с таким ключом не найден";
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     labWorkEntry = Map.entry("", labWork);
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 }
@@ -113,18 +128,19 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
 
                 labWorkEntry = new ParserJSON().deserializeEntryLabWork(commandFields.getRequest().element.toString());
 
-                if (commandFields.getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
-                    response.status = Response.Status.OK;
-                    response.type = Response.Type.TEXT;
+                if (commandFields.getDatabase().getLabWorkDAO().getAll().containsKey(labWorkEntry.getKey())) {
+                    response.statusCode = 200;
+                    response.contentType = Response.Type.TEXT;
                     response.argument = "Элемент изменён";
                     LabWork tempLabWork = labWorkEntry.getValue();
                     tempLabWork.setCreationDate(ZonedDateTime.now());
                     labWorkEntry.setValue(tempLabWork);
-                    commandFields.getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue());
+                    commandFields.getDatabase().getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue(), commandFields.getRequest().authorization);
+
                 } else {
                     labWorkEntry = Map.entry("", labWorkEntry.getValue());
                     response.message = "Элемент с таким ключом не найден";
-                    response.status = Response.Status.ERROR;
+                    response.statusCode = 400;
                     response.argument = new ParserJSON().serializeElement(labWorkEntry);
                 }
 
@@ -137,7 +153,7 @@ public class ReplaceIfLowerCommand extends CommandAbstract {
                 }
                 labWorkEntry = Map.entry("", labWork);
                 response.message = "Вы не ввели ключ";
-                response.status = Response.Status.ERROR;
+                response.statusCode = 400;
                 response.argument = new ParserJSON().serializeElement(labWorkEntry);
             }
         }

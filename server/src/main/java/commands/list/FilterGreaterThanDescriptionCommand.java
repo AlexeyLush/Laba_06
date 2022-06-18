@@ -2,10 +2,7 @@ package commands.list;
 
 import commands.CommandAbstract;
 import commands.models.CommandFields;
-import models.LabWork;
 import response.Response;
-
-import java.util.Map;
 
 /**
  * Команда вывова элементов, значение поля description которых больше заданного
@@ -23,12 +20,12 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
 
         Response response = new Response();
         response.command = "filter_greater_than_description";
-        response.type = Response.Type.INPUT;
+        response.contentType = Response.Type.INPUT;
         String[] commandSplited = commandFields.getCommand().split(" ");
         String description = "";
 
         if (commandSplited.length == 1) {
-            response.status = Response.Status.ERROR;
+            response.statusCode = 400;
             response.message = "Введите описание работы: ";
         }
         else {
@@ -42,11 +39,11 @@ public class FilterGreaterThanDescriptionCommand extends CommandAbstract {
         if (!description.isEmpty()){
 
             response.argument = "";
-            response.type = Response.Type.TEXT;
-            response.status = Response.Status.OK;
+            response.contentType = Response.Type.TEXT;
+            response.statusCode = 200;
             String finalDescription = description;
             commandFields
-                    .getLabWorkDAO()
+                    .getDatabase().getLabWorkDAO()
                     .getAll()
                     .entrySet()
                     .stream()

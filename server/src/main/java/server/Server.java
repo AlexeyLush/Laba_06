@@ -1,35 +1,30 @@
 package server;
 
 import commands.CommandsManager;
-import dao.LabWorkDAO;
-import files.DataFileManager;
+import dao.map.LabWorkDAO;
+import database.PostgresDatabase;
 import io.ConsoleManager;
-import org.checkerframework.checker.units.qual.C;
+import models.User;
 import request.Request;
 import response.Response;
+import service.token.TokenGenerator;
 import services.parsers.ParserJSON;
 import services.trim.TrimMessage;
 
-import javax.xml.crypto.Data;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
+
     private static boolean isRun = true;
     private static final int SIZE_BUFFER = 65_000;
 
@@ -37,13 +32,6 @@ public class Server {
         isRun = false;
     }
 
-    public static void getDataFromFile(String dataFileName, String tempFileName, LabWorkDAO labWorkDAO, DataFileManager dataFileManager) {
-        String fileName = dataFileName;
-        if (!dataFileManager.isMainFile()) {
-            fileName = tempFileName;
-        }
-        labWorkDAO.initialMap(dataFileManager.readMap(fileName, true, true));
-    }
 
     private static DatagramChannel openChannel(SocketAddress address, ConsoleManager consoleManager) {
         try {
@@ -63,7 +51,6 @@ public class Server {
         }
         return null;
     }
-
     private static Request getRequest(ByteBuffer buffer) {
 
         TrimMessage trimMessage = new TrimMessage();
@@ -79,27 +66,20 @@ public class Server {
     }
     private static void sendMessage(ByteBuffer buffer, SocketAddress address, DatagramChannel datagramChannel, ConsoleManager consoleManager) {
         try {
-            consoleManager.warning("Отправка данных");
-            datagramChannel.socket().setSoTimeout(1000);
             datagramChannel.send(buffer, address);
-            consoleManager.successfully("Данные отправлены");
         } catch (IOException e) {
             consoleManager.error("Ошибка во время работы сервера");
         }
 
     }
 
-    public static void run(ConsoleManager consoleManager, Scanner scanner, int port, LabWorkDAO labWorkDAO, DataFileManager dataFileManager) {
+    public static void run(PostgresDatabase database, ConsoleManager consoleManager, Scanner scanner, int port, List<String> tokens) {
 
-        CommandsManager commandsManager = new CommandsManager(scanner, consoleManager, labWorkDAO, dataFileManager);
+        CommandsManager commandsManager = new CommandsManager(scanner, consoleManager, database);
         SocketAddress address = new InetSocketAddress(port);
         DatagramChannel datagramChannel = openChannel(address, consoleManager);
 
-        if (datagramChannel != null){
-            getDataFromFile(dataFileManager.getFileName(), dataFileManager.getTempFileName(), labWorkDAO, dataFileManager);
-            consoleManager.successfully("Серевер запущен!");
-        }
-
+        consoleManager.successfully("Серевер запущен!");
 
         while (isRun) {
 
@@ -118,63 +98,160 @@ public class Server {
                     break;
                 }
 
-
                 Request request = getRequest(buffer);
 
-                Response response = commandsManager.inputCommand(request);
+                if (request.authorization == null) {
 
-                String responseJson = new ParserJSON().serializeElement(response);
+                    Response response = new Response();
 
-                int responseCountBytes = responseJson.getBytes(StandardCharsets.UTF_8).length;
-                if (responseCountBytes >= SIZE_BUFFER){
+                    if (request.message.equalsIgnoreCase("login") || request.message.equalsIgnoreCase("register")){
+                        response.argument = request.message;
+                        response.statusCode = 200;
+                    }
 
-
-                    int startIndex = 0;
-                    for (int i = 0; i < responseCountBytes / (SIZE_BUFFER - 4000); i++){
-
-                        Response packetResponse = new Response();
-                        packetResponse.status = Response.Status.OK;
-                        packetResponse.type = Response.Type.TEXT;
-                        packetResponse.isWait = true;
-
-                        int sizePacketResponse = new ParserJSON().serializeElement(new ParserJSON().serializeElement(packetResponse).getBytes(StandardCharsets.UTF_8)).length();
-
-                        int sizeResponseArgument = response.argument.toString().getBytes(StandardCharsets.UTF_8).length;
-                        int difference = sizeResponseArgument - (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
-                        if (difference <= 0){
-                            packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, sizeResponseArgument);
+                    else if (request.message.equalsIgnoreCase("Register_Account")) {
+                        User user = new ParserJSON().deserializeUser(request.element.toString());
+                        int id = database.getUserDAO().insert(user);
+                        if (id == -1) {
+                            response.message = "Этот логин уже занят. Попробуйте ещё раз";
+                            response.statusCode = 400;
+                        }
+                        else if (id == 0) {
+                            response.message = "Произошла ошибка на сервере. Попробуйте позже";
+                            response.statusCode = 500;
                         }
                         else {
-                            packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse);
-                            startIndex = (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                            response.message = "Аккаунт успешно зарегистрирован. Войдите в него, чтобы получить " +
+                                    "доступ к приложению.";
+                            response.statusCode = 200;
                         }
-
-                        packetResponse.argument = new String((byte[]) packetResponse.argument, StandardCharsets.UTF_8);
-
-                        if (i + 1 >= responseCountBytes / (SIZE_BUFFER - 4000)){
-                            packetResponse.isWait = false;
-                        }
-                        byte[] responseByte = createResponseByte(packetResponse);
-                        buffer.flip();
-                        buffer = ByteBuffer.wrap(responseByte);
-
-                        TimeUnit.MILLISECONDS.sleep(10);
-
-                        sendMessage(buffer, address, datagramChannel, consoleManager);
                     }
-                }
 
-                else {
+                    else if (request.message.equalsIgnoreCase("Get_Salt")){
+                        User user = new User();
+                        user.login = request.element.toString();
+                        String salt = database.getUserDAO().getSaltOfUser(user);
+                        if (salt == null){
+                            response.message = "Неверно введён логин или пароль";
+                            response.statusCode = 400;
+                        }
+                        else {
+                            response.argument = salt;
+                            response.statusCode = 200;
+                        }
+                    }
+
+                    else if (request.message.equalsIgnoreCase("Login_Account")) {
+                        User user = new ParserJSON().deserializeUser(request.element.toString());
+                        if (database.getUserDAO().login(user) == 1){
+                            String token = TokenGenerator.generateToken(user.login, user.hash);
+                            response.statusCode = 200;
+                            response.message = "Добро пожаловать!";
+                            response.argument = token;
+                            if (!tokens.contains(token)){
+                                tokens.add(token);
+                            }
+                        }
+                        else if (database.getUserDAO().login(user) == -1) {
+                            response.statusCode = 400;
+                            response.message = "Неверно введён логин или пароль";
+                        }
+                        else {
+                            response.statusCode = 500;
+                            response.message = "Во время работы произошла ошибка. Поробуйте позже";
+                        }
+                    }
+
+
                     byte[] responseByte = createResponseByte(response);
-
                     buffer.flip();
                     buffer = ByteBuffer.wrap(responseByte);
-
                     sendMessage(buffer, address, datagramChannel, consoleManager);
 
                 }
 
-                dataFileManager.save(labWorkDAO.getAll());
+                else {
+
+                    if (tokens.contains(request.authorization)){
+                        Response response = commandsManager.inputCommand(request);
+
+                        if (request.message.equals("exit")){
+                            try{
+                                tokens.remove(request.authorization);
+                            }
+                            catch (Exception ignored){
+
+                            }
+                        }
+
+                        String responseJson = new ParserJSON().serializeElement(response);
+
+                        int responseCountBytes = responseJson.getBytes(StandardCharsets.UTF_8).length;
+                        if (responseCountBytes >= SIZE_BUFFER){
+
+                            int startIndex = 0;
+                            for (int i = 0; i < responseCountBytes / (SIZE_BUFFER - 4000); i++){
+
+                                Response packetResponse = new Response();
+                                packetResponse.contentType = Response.Type.TEXT;
+                                packetResponse.statusCode = 206;
+
+                                int sizePacketResponse = new ParserJSON().serializeElement(new ParserJSON().serializeElement(packetResponse).getBytes(StandardCharsets.UTF_8)).length();
+
+                                int sizeResponseArgument = response.argument.toString().getBytes(StandardCharsets.UTF_8).length;
+                                int difference = sizeResponseArgument - (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                                if (difference <= 0){
+                                    packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, sizeResponseArgument);
+                                }
+                                else {
+                                    packetResponse.argument = Arrays.copyOfRange(response.argument.toString().getBytes(StandardCharsets.UTF_8), startIndex, (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse);
+                                    startIndex = (i + 1) * (SIZE_BUFFER - 4000) - sizePacketResponse;
+                                }
+
+                                packetResponse.argument = new String((byte[]) packetResponse.argument, StandardCharsets.UTF_8);
+
+                                if (i + 1 >= responseCountBytes / (SIZE_BUFFER - 4000)){
+                                    packetResponse.statusCode = 200;
+                                }
+                                byte[] responseByte = createResponseByte(packetResponse);
+                                buffer.flip();
+                                buffer = ByteBuffer.wrap(responseByte);
+                                TimeUnit.MILLISECONDS.sleep(10);
+                                sendMessage(buffer, address, datagramChannel, consoleManager);
+                            }
+                        }
+
+                        else {
+                            byte[] responseByte = createResponseByte(response);
+
+                            buffer.flip();
+                            buffer = ByteBuffer.wrap(responseByte);
+                            sendMessage(buffer, address, datagramChannel, consoleManager);
+
+                        }
+
+                    }
+
+                    else {
+                        Response response = new Response();
+                        response.message = "Что-то пошло не так и мы не можем потвердить ваш аккаунт. Пожалуйста, " +
+                                "перезайдите в систему";
+                        response.statusCode = 409;
+                        response.contentType = Response.Type.TEXT;
+                        response.argument = "";
+
+                        byte[] responseByte = createResponseByte(response);
+                        buffer.flip();
+                        buffer = ByteBuffer.wrap(responseByte);
+                        sendMessage(buffer, address, datagramChannel, consoleManager);
+
+
+                    }
+
+
+                }
+
+
             }
 
             catch (Exception e){
@@ -191,19 +268,15 @@ public class Server {
         ConsoleManager consoleManager = new ConsoleManager(true, true);
 
         Scanner scanner = new Scanner(System.in);
+        PostgresDatabase postgresDatabase = new PostgresDatabase(consoleManager);
+        postgresDatabase.getLabWorkDAO().setLabWorksFromDatabase();
+        postgresDatabase.createDatabase();
 
-        String dataFileName = System.getenv("LABWORKS_FILE_PATH");
-        String tempFileName = String.format("%s/lab_works_temp.json", System.getenv("TEMP"));
-        DataFileManager dataFileManager = new DataFileManager(dataFileName, tempFileName, consoleManager, scanner);
-        if (dataFileName.trim().isEmpty() || tempFileName.trim().isEmpty()) {
-            consoleManager.error("Ошибка настройки переменного окружения! Программа завершает работу...");
-            Server.exit();
-        }
+        List<String> tokens = new ArrayList<>();
 
         if (isRun) {
-            LabWorkDAO labWorkDAO = new LabWorkDAO();
             int port = 6790;
-            run(consoleManager, scanner, port, labWorkDAO, dataFileManager);
+            run(postgresDatabase, consoleManager, scanner, port, tokens);
         }
 
 
