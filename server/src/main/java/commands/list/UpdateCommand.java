@@ -59,7 +59,9 @@ public class UpdateCommand extends CommandAbstract {
                     if (userNameOfToken.equals(userNameOfLabWork)){
                         response.contentType = Response.Type.UPDATE;
                         response.statusCode = 200;
+                        response.message = "Элемент обновлён";
                         response.argument = new ParserJSON().serializeElement(labWorkEntry);
+                        commandFields.getDatabase().getLabWorkDAO().setLabWorksFromDatabase();
                     }
 
                     else {
@@ -159,6 +161,7 @@ public class UpdateCommand extends CommandAbstract {
                         response.contentType = Response.Type.TEXT;
                         response.message = "Элемент обновлён";
                         commandFields.getDatabase().getLabWorkDAO().update(labWorkEntry.getValue().getId(), labWorkEntry.getValue(), commandFields.getRequest().authorization);
+                        commandFields.getDatabase().getLabWorkDAO().setLabWorksFromDatabase();
                     }
                     else {
                         response.statusCode = 400;

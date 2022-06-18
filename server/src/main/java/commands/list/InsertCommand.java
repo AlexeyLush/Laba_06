@@ -80,7 +80,8 @@ public class InsertCommand extends CommandAbstract {
                     }
 
                     else {
-                        if (commandFields.getDatabase().getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue(), commandFields.getRequest().authorization) == 0){
+                        if (commandFields.getDatabase().getLabWorkDAO().create(labWorkEntry.getKey(), labWorkEntry.getValue(),
+                                commandFields.getRequest().authorization) == 0){
                             labWork.setCreationDate(ZonedDateTime.now());
                             response.statusCode = 400;
                             response.contentType = Response.Type.TEXT;

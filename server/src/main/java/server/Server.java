@@ -12,6 +12,7 @@ import services.parsers.ParserJSON;
 import services.trim.TrimMessage;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
@@ -73,16 +76,27 @@ public class Server {
 
     }
 
-    public static void run(PostgresDatabase database, ConsoleManager consoleManager, Scanner scanner, int port, List<String> tokens) {
 
-        CommandsManager commandsManager = new CommandsManager(scanner, consoleManager, database);
-        SocketAddress address = new InetSocketAddress(port);
-        DatagramChannel datagramChannel = openChannel(address, consoleManager);
+    static class ClientListener extends RecursiveTask{
 
-        consoleManager.successfully("Серевер запущен!");
+        DatagramChannel datagramChannel;
+        SocketAddress address;
+        ConsoleManager consoleManager;
+        PostgresDatabase database;
+        List<String> tokens;
+        CommandsManager commandsManager;
 
-        while (isRun) {
-
+        public ClientListener(DatagramChannel datagramChannel, SocketAddress address, ConsoleManager consoleManager,
+                              PostgresDatabase database, List<String> tokens, CommandsManager commandsManager) {
+            this.datagramChannel = datagramChannel;
+            this.address = address;
+            this.consoleManager = consoleManager;
+            this.database = database;
+            this.tokens = tokens;
+            this.commandsManager = commandsManager;
+        }
+        @Override
+        protected Object compute() {
             try{
                 byte[] arr = new byte[SIZE_BUFFER];
                 ByteBuffer buffer;
@@ -90,12 +104,14 @@ public class Server {
 
 
                 if (datagramChannel == null) {
-                    break;
+                    exit();
+                    return 0;
                 }
                 address = receiveDatagram(datagramChannel, buffer, consoleManager);
 
                 if (address == null) {
-                    break;
+                    exit();
+                    return 0;
                 }
 
                 Request request = getRequest(buffer);
@@ -257,8 +273,22 @@ public class Server {
             catch (Exception e){
                 consoleManager.error("Ошибка во время работы сервера");
             }
+            return 1;
+        }
+    }
 
+    public static void run(PostgresDatabase database, ConsoleManager consoleManager, Scanner scanner, int port, List<String> tokens) {
 
+        CommandsManager commandsManager = new CommandsManager(scanner, consoleManager, database);
+        SocketAddress address = new InetSocketAddress(port);
+        DatagramChannel datagramChannel = openChannel(address, consoleManager);
+
+        consoleManager.successfully("Серевер запущен!");
+
+        while (isRun) {
+            ForkJoinPool forkJoinPool = new ForkJoinPool();
+            forkJoinPool.invoke(new ClientListener(datagramChannel, address,
+                    consoleManager, database, tokens, commandsManager));
         }
 
     }

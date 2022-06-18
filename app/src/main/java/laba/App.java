@@ -255,7 +255,7 @@ public class App {
     }
     public static void main(String[] args) {
 
-        ConsoleManager consoleManager = new ConsoleManager(true, false);
+        ConsoleManager consoleManager = new ConsoleManager(false, false);
         Scanner scanner = new Scanner(System.in);
         DatagramSocket datagramSocket;
         DatagramPacket datagramPacket;
@@ -270,7 +270,7 @@ public class App {
 
                 datagramSocket = new DatagramSocket();
                 datagramSocket.setSoTimeout(5000);
-                host = InetAddress.getLocalHost();
+                host = InetAddress.getByName("192.168.3.16");
                 port = 6790;
 
 
